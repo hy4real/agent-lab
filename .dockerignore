@@ -1,0 +1,8 @@
+*
+!Dockerfile
+!pyproject.toml
+!README.md
+!src/
+!src/**/
+!src/**/*.py
+!src/agentlab/research/fixtures/demo-corpus/*.md

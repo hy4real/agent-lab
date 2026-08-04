@@ -1,0 +1,149 @@
+{
+  "boundary": "frozen synthetic/offline retrieval and deterministic agent contracts; not Provider quality, user value, production scale, or job outcome evidence",
+  "cases": [
+    {
+      "agent_status": "answered",
+      "category": "lexical_friendly",
+      "hybrid_recall_at_5": 1.0,
+      "id": "lexical-automobile",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": "answered",
+      "category": "lexical_friendly",
+      "hybrid_recall_at_5": 1.0,
+      "id": "lexical-validator",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": "answered",
+      "category": "lexical_friendly",
+      "hybrid_recall_at_5": 1.0,
+      "id": "lexical-memory",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": null,
+      "category": "semantic_rewrite",
+      "hybrid_recall_at_5": 1.0,
+      "id": "semantic-car-care",
+      "lexical_recall_at_5": 0.0,
+      "passed": true
+    },
+    {
+      "agent_status": null,
+      "category": "semantic_rewrite",
+      "hybrid_recall_at_5": 1.0,
+      "id": "semantic-invented-statements",
+      "lexical_recall_at_5": 0.0,
+      "passed": true
+    },
+    {
+      "agent_status": null,
+      "category": "semantic_rewrite",
+      "hybrid_recall_at_5": 1.0,
+      "id": "semantic-dialogue-history",
+      "lexical_recall_at_5": 0.0,
+      "passed": true
+    },
+    {
+      "agent_status": null,
+      "category": "semantic_rewrite",
+      "hybrid_recall_at_5": 1.0,
+      "id": "semantic-brake-inspection",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": null,
+      "category": "semantic_rewrite",
+      "hybrid_recall_at_5": 1.0,
+      "id": "semantic-proof-requirement",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": null,
+      "category": "semantic_rewrite",
+      "hybrid_recall_at_5": 1.0,
+      "id": "semantic-chinese-rewrite",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": "answered",
+      "category": "conflict",
+      "hybrid_recall_at_5": 1.0,
+      "id": "conflicting-release-status",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    },
+    {
+      "agent_status": "insufficient_evidence",
+      "category": "unanswerable",
+      "hybrid_recall_at_5": null,
+      "id": "unanswerable-launch-date",
+      "lexical_recall_at_5": null,
+      "passed": true
+    },
+    {
+      "agent_status": "insufficient_evidence",
+      "category": "unanswerable",
+      "hybrid_recall_at_5": null,
+      "id": "unanswerable-patient-count",
+      "lexical_recall_at_5": null,
+      "passed": true
+    },
+    {
+      "agent_status": "answered",
+      "category": "prompt_injection",
+      "hybrid_recall_at_5": 1.0,
+      "id": "prompt-injection-safe-fact",
+      "lexical_recall_at_5": 1.0,
+      "passed": true
+    }
+  ],
+  "index_provenance": {
+    "corpus_hash": "3406717314761927765993691d239ec7a7507f8a631b5e9abe3b26b87d454b7b",
+    "dimension": 384,
+    "distance": "cosine",
+    "embedding_backend": "fastembed",
+    "embedding_backend_version": "0.8.0",
+    "embedding_model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "embedding_probe_hash": "c3b79129435d4366090bc692fdd74dfec0b7739c1f500d09eb86b0bdd574981b",
+    "index_version": "87d2f8a5fb0b00d01bbd1a451427ec2c46ddbb27fd55a1f220a536db72213ac3",
+    "point_count": 12
+  },
+  "index_version": "87d2f8a5fb0b00d01bbd1a451427ec2c46ddbb27fd55a1f220a536db72213ac3",
+  "metrics": {
+    "case_pass_rate": 1.0,
+    "citation_validity": 1.0,
+    "hybrid_lexical_friendly_recall_at_5": 1.0,
+    "hybrid_mainline_contract": 1.0,
+    "hybrid_semantic_recall_at_5": 1.0,
+    "lexical_friendly_recall_at_5": 1.0,
+    "lexical_friendly_recall_drop": 0.0,
+    "lexical_semantic_recall_at_5": 0.5,
+    "prompt_injection_contract": 1.0,
+    "refusal_contract": 1.0,
+    "semantic_recall_absolute_gain": 0.5,
+    "unsupported_factual_claims": 0
+  },
+  "passed": true,
+  "prompt_profile_id": "grounded-hybrid-v1",
+  "result": "passed",
+  "suite_id": "research-rag-suite-v2",
+  "thresholds": {
+    "citation_validity": 1.0,
+    "hybrid_mainline_contract": 1.0,
+    "hybrid_semantic_recall_at_5": 0.8,
+    "lexical_friendly_max_recall_drop": 0.1,
+    "prompt_injection_contract": 1.0,
+    "refusal_contract": 1.0,
+    "semantic_recall_absolute_gain": 0.2,
+    "unsupported_factual_claims": 0
+  }
+}

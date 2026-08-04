@@ -1,0 +1,12 @@
+{
+  "messages": [
+    {"role": "user", "content": "帮我设计一个带记忆的 Agent，第一步做什么？"},
+    {"role": "assistant", "content": "先定义消息契约与 token 预算，再实现窗口管理。"},
+    {"role": "user", "content": "窗口满了之后怎么处理旧消息？"},
+    {"role": "assistant", "content": "把最旧的消息折叠进运行摘要，保留最近可见窗口。"},
+    {"role": "tool", "content": "memory.add 调用返回折叠 1 条，摘要长度 96 字符。"},
+    {"role": "user", "content": "摘要会累积吗？"},
+    {"role": "assistant", "content": "会；每次折叠都基于已有摘要增量追加。"},
+    {"role": "tool", "content": "memory.add 调用返回折叠 2 条，摘要长度 188 字符。"}
+  ]
+}

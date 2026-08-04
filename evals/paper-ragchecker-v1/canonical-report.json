@@ -1,0 +1,358 @@
+{
+  "boundary": "frozen synthetic/offline oracle labels; not claim extraction, entailment model, complete RAGChecker, paper conclusion, Provider quality, or user-value evidence",
+  "cases": [
+    {
+      "agent_contract_passed": null,
+      "expected_metrics": {
+        "claim_recall": 0.3333333333333333,
+        "context_precision": 0.5,
+        "context_utilization": 1.0,
+        "f1": 0.5,
+        "faithfulness": 0.6,
+        "hallucination": 0.2,
+        "noise_sensitivity_in_irrelevant": 0.2,
+        "noise_sensitivity_in_relevant": 0.2,
+        "precision": 0.4,
+        "recall": 0.6666666666666666,
+        "self_knowledge": 0.2
+      },
+      "id": "mixed-errors-nonsquare",
+      "kind": "matrix",
+      "metrics": {
+        "claim_recall": 0.3333333333333333,
+        "context_precision": 0.5,
+        "context_utilization": 1.0,
+        "f1": 0.5,
+        "faithfulness": 0.6,
+        "hallucination": 0.2,
+        "noise_sensitivity_in_irrelevant": 0.2,
+        "noise_sensitivity_in_relevant": 0.2,
+        "precision": 0.4,
+        "recall": 0.6666666666666666,
+        "self_knowledge": 0.2
+      },
+      "observed_response_claim_ids": [],
+      "passed": true,
+      "retrieved_sources": []
+    },
+    {
+      "agent_contract_passed": null,
+      "expected_metrics": {
+        "claim_recall": 1.0,
+        "context_precision": 0.5,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 1.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "id": "overlap-counts-as-relevant-noise",
+      "kind": "matrix",
+      "metrics": {
+        "claim_recall": 1.0,
+        "context_precision": 0.5,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 1.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [],
+      "passed": true,
+      "retrieved_sources": []
+    },
+    {
+      "agent_contract_passed": null,
+      "expected_metrics": {
+        "claim_recall": 1.0,
+        "context_precision": 1.0,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 0.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "id": "zero-response-claims",
+      "kind": "matrix",
+      "metrics": {
+        "claim_recall": 1.0,
+        "context_precision": 1.0,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 0.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [],
+      "passed": true,
+      "retrieved_sources": []
+    },
+    {
+      "agent_contract_passed": null,
+      "expected_metrics": {
+        "claim_recall": 0.0,
+        "context_precision": 0.0,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 0.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "id": "zero-retrieved-chunks",
+      "kind": "matrix",
+      "metrics": {
+        "claim_recall": 0.0,
+        "context_precision": 0.0,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 0.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [],
+      "passed": true,
+      "retrieved_sources": []
+    },
+    {
+      "agent_contract_passed": null,
+      "expected_metrics": {
+        "claim_recall": 0.0,
+        "context_precision": 0.0,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "id": "zero-ground-truth-claims",
+      "kind": "matrix",
+      "metrics": {
+        "claim_recall": 0.0,
+        "context_precision": 0.0,
+        "context_utilization": 0.0,
+        "f1": 0.0,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [],
+      "passed": true,
+      "retrieved_sources": []
+    },
+    {
+      "agent_contract_passed": null,
+      "expected_metrics": {
+        "claim_recall": 0.0,
+        "context_precision": 0.0,
+        "context_utilization": 0.0,
+        "f1": 1.0,
+        "faithfulness": 0.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "self_knowledge": 1.0
+      },
+      "id": "correct-but-unretrieved-self-knowledge",
+      "kind": "matrix",
+      "metrics": {
+        "claim_recall": 0.0,
+        "context_precision": 0.0,
+        "context_utilization": 0.0,
+        "f1": 1.0,
+        "faithfulness": 0.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "self_knowledge": 1.0
+      },
+      "observed_response_claim_ids": [],
+      "passed": true,
+      "retrieved_sources": []
+    },
+    {
+      "agent_contract_passed": true,
+      "expected_metrics": {
+        "claim_recall": 1.0,
+        "context_precision": 1.0,
+        "context_utilization": 1.0,
+        "f1": 1.0,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "self_knowledge": 0.0
+      },
+      "id": "agent-clean-context",
+      "kind": "research_agent",
+      "metrics": {
+        "claim_recall": 1.0,
+        "context_precision": 1.0,
+        "context_utilization": 1.0,
+        "f1": 1.0,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [
+        "response-monthly-inspection",
+        "response-quarterly-calibration"
+      ],
+      "passed": true,
+      "retrieved_sources": [
+        "atlas-monthly.md",
+        "atlas-quarterly.md"
+      ]
+    },
+    {
+      "agent_contract_passed": true,
+      "expected_metrics": {
+        "claim_recall": 0.5,
+        "context_precision": 0.5,
+        "context_utilization": 1.0,
+        "f1": 0.5,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.5,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "self_knowledge": 0.0
+      },
+      "id": "agent-irrelevant-noise",
+      "kind": "research_agent",
+      "metrics": {
+        "claim_recall": 0.5,
+        "context_precision": 0.5,
+        "context_utilization": 1.0,
+        "f1": 0.5,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.5,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [
+        "response-monthly-inspection",
+        "response-harbor-noise"
+      ],
+      "passed": true,
+      "retrieved_sources": [
+        "atlas-monthly.md",
+        "harbor-noise.md"
+      ]
+    },
+    {
+      "agent_contract_passed": true,
+      "expected_metrics": {
+        "claim_recall": 0.5,
+        "context_precision": 1.0,
+        "context_utilization": 1.0,
+        "f1": 0.6666666666666666,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "self_knowledge": 0.0
+      },
+      "id": "agent-retrieval-miss",
+      "kind": "research_agent",
+      "metrics": {
+        "claim_recall": 0.5,
+        "context_precision": 1.0,
+        "context_utilization": 1.0,
+        "f1": 0.6666666666666666,
+        "faithfulness": 1.0,
+        "hallucination": 0.0,
+        "noise_sensitivity_in_irrelevant": 0.0,
+        "noise_sensitivity_in_relevant": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "self_knowledge": 0.0
+      },
+      "observed_response_claim_ids": [
+        "response-monthly-inspection"
+      ],
+      "passed": true,
+      "retrieved_sources": [
+        "atlas-monthly.md"
+      ]
+    }
+  ],
+  "corpus_sha256": "42ed69e6f9b3e9a5b6ae2f868911a571a1643d1ddfc4baa99061e31f89f112cb",
+  "implementation_started_at": "2026-08-03T15:51:45Z",
+  "macro_metrics": {
+    "claim_recall": 0.48148148148148145,
+    "context_precision": 0.5,
+    "context_utilization": 0.4444444444444444,
+    "f1": 0.4074074074074074,
+    "faithfulness": 0.6222222222222222,
+    "hallucination": 0.022222222222222223,
+    "noise_sensitivity_in_irrelevant": 0.07777777777777778,
+    "noise_sensitivity_in_relevant": 0.13333333333333333,
+    "precision": 0.43333333333333335,
+    "recall": 0.4074074074074074,
+    "self_knowledge": 0.13333333333333333
+  },
+  "metric_scale": "ratio_0_to_1",
+  "paper": {
+    "arxiv_id": "2408.08067",
+    "doi": "10.52202/079017-0692",
+    "official_commit": "6091f08c00e676e87a970f2aeb4a23a484746348",
+    "official_repository": "amazon-science/RAGChecker",
+    "paper_version": "v2",
+    "title": "RAGChecker: A Fine-grained Framework for Diagnosing Retrieval-Augmented Generation"
+  },
+  "passed": true,
+  "result": "passed",
+  "schema_version": 1,
+  "scope": "oracle-label claim-level metric replication",
+  "suite_id": "paper-ragchecker-suite-v1",
+  "suite_sha256": "e473b9908d2e409cc8fc4f5511ab8e6145d4fc1a06bc3e9f506240d6a282f061",
+  "tolerance": 1e-12
+}

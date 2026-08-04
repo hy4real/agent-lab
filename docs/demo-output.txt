@@ -1,0 +1,40 @@
+turn 1: user '帮我设计一个带记忆的 Agent，第一步做什么？'
+  summary=''
+  recent=['帮我设计一个带记忆的 Agent，第一步做什么？']
+  estimated_tokens=6
+  injected=['帮我设计一个带记忆的 Agent，第一步做什么？']
+turn 2: assistant '先定义消息契约与 token 预算，再实现窗口管理。'
+  summary=''
+  recent=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。']
+  estimated_tokens=13
+  injected=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。']
+turn 3: user '窗口满了之后怎么处理旧消息？'
+  summary=''
+  recent=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。', '窗口满了之后怎么处理旧消息？']
+  estimated_tokens=17
+  injected=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。', '窗口满了之后怎么处理旧消息？']
+turn 4: assistant '把最旧的消息折叠进运行摘要，保留最近可见窗口。'
+  summary=''
+  recent=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。', '窗口满了之后怎么处理旧消息？', '把最旧的消息折叠进运行摘要，保留最近可见窗口。']
+  estimated_tokens=23
+  injected=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。', '窗口满了之后怎么处理旧消息？', '把最旧的消息折叠进运行摘要，保留最近可见窗口。']
+turn 5: tool 'memory.add 调用返回折叠 1 条，摘要长度 96 字符。'
+  summary=''
+  recent=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。', '窗口满了之后怎么处理旧消息？', '把最旧的消息折叠进运行摘要，保留最近可见窗口。', 'memory.add 调用返回折叠 1 条，摘要长度 96 字符。']
+  estimated_tokens=32
+  injected=['帮我设计一个带记忆的 Agent，第一步做什么？', '先定义消息契约与 token 预算，再实现窗口管理。', '窗口满了之后怎么处理旧消息？', '把最旧的消息折叠进运行摘要，保留最近可见窗口。', 'memory.add 调用返回折叠 1 条，摘要长度 96 字符。']
+turn 6: user '摘要会累积吗？'
+  summary='[user] 帮我设计一个带记忆的 Agent，第一步做什么？；[assistant] 先定义消息契约与 token 预算，再实现窗口管理。；[user] 窗口满了之后怎么处理旧消息？；[assistant] 把最旧的消息折叠进运行摘要，保留最近可见窗口。；[tool] memory.add 调用返回折叠 1 条，摘要长度 96 字符。'
+  recent=['摘要会累积吗？']
+  estimated_tokens=45
+  injected=['【短期记忆摘要】[user] 帮我设计一个带记忆的 Agent，第一步做什么？；[assistant] 先定义消息契约与 token 预算，再实现窗口管理。；[user] 窗口满了之后怎么处理旧消息？；[assistant] 把最旧的消息折叠进运行摘要，保留最近可见窗口。；[tool] memory.add 调用返回折叠 1 条，摘要长度 96 字符。', '摘要会累积吗？']
+turn 7: assistant '会；每次折叠都基于已有摘要增量追加。'
+  summary='[user] 帮我设计一个带记忆的 Agent，第一步做什么？；[assistant] 先定义消息契约与 token 预算，再实现窗口管理。；[user] 窗口满了之后怎么处理旧消息？；[assistant] 把最旧的消息折叠进运行摘要，保留最近可见窗口。；[tool] memory.add 调用返回折叠 1 条，摘要长度 96 字符。；[user] 摘要会累积吗？'
+  recent=['会；每次折叠都基于已有摘要增量追加。']
+  estimated_tokens=51
+  injected=['【短期记忆摘要】[user] 帮我设计一个带记忆的 Agent，第一步做什么？；[assistant] 先定义消息契约与 token 预算，再实现窗口管理。；[user] 窗口满了之后怎么处理旧消息？；[assistant] 把最旧的消息折叠进运行摘要，保留最近可见窗口。；[tool] memory.add 调用返回折叠 1 条，摘要长度 96 字符。；[user] 摘要会累积吗？', '会；每次折叠都基于已有摘要增量追加。']
+turn 8: tool 'memory.add 调用返回折叠 2 条，摘要长度 188 字符。'
+  summary='[user] 帮我设计一个带记忆的 Agent，第一步做什么？；[assistant] 先定义消息契约与 token 预算，再实现窗口管理。；[user] 窗口满了之后怎么处理旧消息？；[assistant] 把最旧的消息折叠进运行摘要，保留最近可见窗口。；[tool] memory.add 调用返回折叠 1 条，摘要长度 96 字符。；[user] 摘要会累积吗？；[assistant] 会；每次折叠都基于已有摘要增量追加。'
+  recent=['memory.add 调用返回折叠 2 条，摘要长度 188 字符。']
+  estimated_tokens=63
+  injected=['【短期记忆摘要】[user] 帮我设计一个带记忆的 Agent，第一步做什么？；[assistant] 先定义消息契约与 token 预算，再实现窗口管理。；[user] 窗口满了之后怎么处理旧消息？；[assistant] 把最旧的消息折叠进运行摘要，保留最近可见窗口。；[tool] memory.add 调用返回折叠 1 条，摘要长度 96 字符。；[user] 摘要会累积吗？；[assistant] 会；每次折叠都基于已有摘要增量追加。', 'memory.add 调用返回折叠 2 条，摘要长度 188 字符。']
