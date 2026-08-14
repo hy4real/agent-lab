@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 from .longterm import LongTermMemory, build_full_context
 from .memory import MemoryState, ShortTermMemory
+from .memory_tools import MemorySearchToolRunner
 from .messages import Message
 from .reasoning import (
     Planner,
@@ -59,9 +61,10 @@ class AgentEnvironment:
         long_term: LongTermMemory,
         query: str,
         *,
-        top_k: int = 3,
+        scope: str,
+        top_k: int = 2,
     ) -> tuple[Message, ...]:
-        return build_full_context(short_term, long_term, query, top_k=top_k)
+        return build_full_context(short_term, long_term, query, scope=scope, top_k=top_k)
 
     def run(
         self,
@@ -70,14 +73,30 @@ class AgentEnvironment:
         short_term: ShortTermMemory | None = None,
         long_term: LongTermMemory | None = None,
         query: str | None = None,
+        memory_scope: str | None = None,
+        enable_memory_search: bool = False,
         initial_context: tuple[str, ...] = (),
     ) -> EnvironmentRun:
         if self.strategy == "plan_execute" and (
-            short_term is not None or long_term is not None or query is not None or initial_context
+            short_term is not None
+            or long_term is not None
+            or query is not None
+            or memory_scope is not None
+            or enable_memory_search
+            or initial_context
         ):
             raise ValueError("plan_execute strategy 尚不支持 memory context")
-        if short_term is None and (long_term is not None or query is not None):
-            raise ValueError("long_term 与 query 需要 short_term")
+        if short_term is None and (
+            long_term is not None or query is not None or memory_scope is not None or enable_memory_search
+        ):
+            raise ValueError("long_term、query 与 memory_scope 需要 short_term")
+        if long_term is not None and memory_scope is None:
+            raise ValueError("long_term 需要显式 memory_scope")
+        if long_term is None and (memory_scope is not None or enable_memory_search):
+            raise ValueError("memory_scope 与 memory_search 需要 long_term")
+        resolved_memory_scope = memory_scope
+        if long_term is not None:
+            assert resolved_memory_scope is not None
         context_provider = None
         message_sink = None
         if short_term is not None:
@@ -85,8 +104,15 @@ class AgentEnvironment:
 
             def current_context() -> tuple[str, ...]:
                 state = short_term.state()
+                if long_term is not None:
+                    assert resolved_memory_scope is not None
                 messages = (
-                    build_full_context(state, long_term, query or task)
+                    build_full_context(
+                        state,
+                        long_term,
+                        query or task,
+                        scope=cast(str, resolved_memory_scope),
+                    )
                     if long_term is not None
                     else state.recent_messages
                 )
@@ -100,7 +126,15 @@ class AgentEnvironment:
 
         if self.strategy == "react":
             assert self.reasoner is not None
-            trace = ReActStrategy(reasoner=self.reasoner, tools=self.tools).run(
+            run_tools = self.tools
+            if enable_memory_search:
+                assert long_term is not None and resolved_memory_scope is not None
+                run_tools = MemorySearchToolRunner(
+                    self.tools,
+                    long_term,
+                    scope=resolved_memory_scope,
+                )
+            trace = ReActStrategy(reasoner=self.reasoner, tools=run_tools).run(
                 task,
                 initial_context=initial_context,
                 context_provider=context_provider,

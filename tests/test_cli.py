@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import io
 import json
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -38,6 +40,121 @@ def test_cli_errors_are_stable_and_do_not_echo_path(tmp_path: Path, capsys) -> N
     assert captured.out == ""
     assert captured.err == "error: agentlab_command_failed\n"
     assert str(secret_path) not in captured.err
+
+
+def test_memory_cli_lifecycle_is_explicit_and_redacted(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    state = tmp_path / "private-state.json"
+    secret = "private memory body"
+    monkeypatch.setattr(sys, "stdin", io.StringIO(secret))
+    assert main([
+        "memory",
+        "propose",
+        "--state",
+        str(state),
+        "--scope",
+        "project:alpha",
+        "--kind",
+        "decision",
+        "--origin",
+        "manual",
+        "--expected-revision",
+        "0",
+    ]) == 0
+    proposed = json.loads(capsys.readouterr().out)
+    assert proposed["record"]["status"] == "candidate"
+    assert proposed["revision"] == 1
+    assert secret not in json.dumps(proposed)
+
+    record_id = proposed["record"]["id"]
+    assert main([
+        "memory",
+        "confirm",
+        record_id,
+        "--state",
+        str(state),
+        "--scope",
+        "project:alpha",
+        "--expected-revision",
+        "1",
+    ]) == 0
+    confirmed = json.loads(capsys.readouterr().out)
+    assert confirmed["record"]["status"] == "confirmed"
+
+    assert main([
+        "memory",
+        "list",
+        "--state",
+        str(state),
+        "--scope",
+        "project:alpha",
+    ]) == 0
+    listed = json.loads(capsys.readouterr().out)
+    assert listed["revision"] == 2
+    assert listed["records"][0]["status"] == "confirmed"
+    assert secret not in json.dumps(listed)
+
+    assert main([
+        "memory",
+        "deactivate",
+        record_id,
+        "--state",
+        str(state),
+        "--scope",
+        "project:alpha",
+        "--expected-revision",
+        "2",
+    ]) == 0
+    assert json.loads(capsys.readouterr().out)["record"]["status"] == "inactive"
+
+
+def test_memory_cli_import_is_dry_run_by_default(tmp_path: Path, capsys) -> None:
+    state = tmp_path / "legacy.json"
+    original = json.dumps({
+        "entries": [
+            {"id": "entry-1", "text": "legacy text", "created_at": "2026-08-14T00:00:00+00:00"}
+        ]
+    }).encode()
+    state.write_bytes(original)
+    assert main([
+        "memory",
+        "import-legacy",
+        "--state",
+        str(state),
+        "--scope",
+        "project:alpha",
+    ]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["applied"] is False
+    assert state.read_bytes() == original
+
+
+def test_memory_cli_errors_do_not_echo_state_or_stdin(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    state = tmp_path / "private-state-name.json"
+    secret = "private invalid body"
+    monkeypatch.setattr(sys, "stdin", io.StringIO(secret))
+    assert main([
+        "memory",
+        "propose",
+        "--state",
+        str(state),
+        "--scope",
+        "bad scope",
+        "--kind",
+        "note",
+        "--origin",
+        "manual",
+        "--expected-revision",
+        "0",
+    ]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == "error: agentlab_command_failed\n"
+    assert str(state) not in captured.err
+    assert secret not in captured.err
 
 
 def test_research_eval_stdout_is_json(capsys) -> None:

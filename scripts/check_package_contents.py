@@ -48,6 +48,12 @@ docs/public-release-readiness.md
 docs/v0.9-v1.1-research-agent-plan.md
 docs/v1.2-hybrid-rag-plan.md
 docs/v1.3-ragchecker-paper-to-code-plan.md
+docs/v1.5-controlled-memory-plan.md
+evals/controlled-memory-v1/baseline-report.json
+evals/controlled-memory-v1/baseline-report.md
+evals/controlled-memory-v1/cases.json
+evals/controlled-memory-v1/records.json
+evals/controlled-memory-v1/thresholds.json
 evals/paper-ragchecker-v1/corpus/atlas-monthly.md
 evals/paper-ragchecker-v1/corpus/atlas-quarterly.md
 evals/paper-ragchecker-v1/corpus/harbor-noise.md
@@ -86,10 +92,12 @@ example/conversation.json
 example/corpus/agent-lab.md
 pyproject.toml
 scripts/check_package_contents.py
+scripts/evaluate_controlled_memory.py
 scripts/evaluate_ragchecker_replication.py
 src/agentlab/__init__.py
 src/agentlab/api.py
 src/agentlab/cli.py
+src/agentlab/controlled_memory_evaluation.py
 src/agentlab/demo.py
 src/agentlab/environment.py
 src/agentlab/evaluation/__init__.py
@@ -102,6 +110,7 @@ src/agentlab/evaluation/runner.py
 src/agentlab/llm.py
 src/agentlab/longterm.py
 src/agentlab/memory.py
+src/agentlab/memory_tools.py
 src/agentlab/messages.py
 src/agentlab/reasoning.py
 src/agentlab/research/__init__.py
@@ -133,11 +142,13 @@ src/agentlab/retrieval/index.py
 src/agentlab/summarize.py
 tests/test_api.py
 tests/test_cli.py
+tests/test_controlled_memory_evaluation.py
 tests/test_environment.py
 tests/test_evaluation.py
 tests/test_llm.py
 tests/test_longterm.py
 tests/test_memory.py
+tests/test_memory_tools.py
 tests/test_package_contents.py
 tests/test_reasoning.py
 tests/test_research_agent.py

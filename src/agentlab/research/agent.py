@@ -69,6 +69,7 @@ class ResearchAgent:
         index_version: str | None = None,
         prompt_profile_id: str = BASELINE_PROFILE_ID,
         long_term: LongTermMemory | None = None,
+        memory_scope: str | None = None,
         clock: Callable[[], float] = time.perf_counter,
     ) -> None:
         if retrieval_mode not in {"lexical", "hybrid"}:
@@ -79,6 +80,8 @@ class ResearchAgent:
             raise ValueError("hybrid retrieval 需要 search 与 index_version")
         if retrieval_mode == "lexical" and index_version is not None:
             raise ValueError("lexical retrieval 不接受 index_version")
+        if (long_term is None) != (memory_scope is None):
+            raise ValueError("long_term 与 memory_scope 必须成对提供")
         self.corpus = corpus
         self.reasoner = reasoner or ReplayResearchReasoner()
         self.tools = tools or build_research_tools(corpus, search=search)
@@ -86,6 +89,7 @@ class ResearchAgent:
         self.index_version = index_version
         self.prompt_profile = get_prompt_profile(prompt_profile_id)
         self.long_term = long_term
+        self.memory_scope = memory_scope
         self.clock = clock
 
     def run(self, question: str) -> ResearchRun:
@@ -105,6 +109,7 @@ class ResearchAgent:
             short_term=short_term,
             long_term=self.long_term,
             query=question,
+            memory_scope=self.memory_scope,
             initial_context=(self.prompt_profile.system_context,),
         )
         finished = self.clock()

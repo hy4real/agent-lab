@@ -1,0 +1,61 @@
+{
+  "suite_id": "controlled-memory-v1",
+  "cases": [
+    {
+      "id": "alpha-queue-recall",
+      "query": "Alpha durable queue offline jobs",
+      "scope": "project:alpha",
+      "top_k": 1,
+      "expected_record_keys": ["alpha-queue"]
+    },
+    {
+      "id": "beta-cache-scope",
+      "query": "Beta cache SQLite",
+      "scope": "project:beta",
+      "top_k": 2,
+      "expected_record_keys": ["beta-cache"]
+    },
+    {
+      "id": "alpha-cjk-preference",
+      "query": "偏好 离线 评测",
+      "scope": "project:alpha",
+      "top_k": 1,
+      "expected_record_keys": ["alpha-offline-preference"]
+    },
+    {
+      "id": "alpha-bilingual-memory",
+      "query": "Python agent BM25 retrieval",
+      "scope": "project:alpha",
+      "top_k": 1,
+      "expected_record_keys": ["alpha-bilingual-memory"]
+    },
+    {
+      "id": "candidate-excluded",
+      "query": "moonstone secret draft",
+      "scope": "project:alpha",
+      "top_k": 2,
+      "expected_record_keys": []
+    },
+    {
+      "id": "inactive-excluded",
+      "query": "bamboo workers deployment",
+      "scope": "project:alpha",
+      "top_k": 2,
+      "expected_record_keys": []
+    },
+    {
+      "id": "injection-is-data",
+      "query": "ignore system rules citation",
+      "scope": "project:alpha",
+      "top_k": 1,
+      "expected_record_keys": ["alpha-injection"]
+    },
+    {
+      "id": "no-match",
+      "query": "quasar telemetry",
+      "scope": "project:alpha",
+      "top_k": 2,
+      "expected_record_keys": []
+    }
+  ]
+}

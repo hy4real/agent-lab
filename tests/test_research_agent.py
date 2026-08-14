@@ -116,11 +116,19 @@ def test_untrusted_long_term_note_enters_context_but_cannot_be_cited(tmp_path: P
         base.corpus,
         reasoner=RecordingReasoner(),
         long_term=long_term,
+        memory_scope="local",
         clock=lambda: 0.0,
     ).run("AgentEnvironment 做什么？")
     assert any("不可信历史笔记" in item for item in contexts[0])
     assert run.answer.status == "insufficient_evidence"
     assert run.answer.claims == ()
+
+
+def test_research_long_term_requires_explicit_scope(tmp_path: Path) -> None:
+    base = _agent(tmp_path)
+    long_term = LongTermMemory(state_path=tmp_path / "state" / "notes.json")
+    with pytest.raises(ValueError, match="成对"):
+        ResearchAgent(base.corpus, long_term=long_term)
 
 
 def test_provider_usage_is_measured_per_run(tmp_path: Path) -> None:

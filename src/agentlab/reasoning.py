@@ -15,11 +15,19 @@ class ToolError(RuntimeError):
     pass
 
 
+@dataclass(frozen=True)
+class ToolObservation:
+    """Tool output for reasoning plus a separate privacy-safe trace detail."""
+
+    content: str
+    trace_detail: str
+
+
 class ToolRunner(Protocol):
     def names(self) -> tuple[str, ...]:
         ...
 
-    def call(self, tool: str, argument: str) -> str:
+    def call(self, tool: str, argument: str) -> str | ToolObservation:
         ...
 
 
@@ -182,17 +190,28 @@ class ReActStrategy:
                     message_sink("assistant", action.answer)
                 return Trace(strategy="react", records=tuple(records), success=True, answer=action.answer)
             assert action.tool is not None and action.argument is not None
-            records.append(StepRecord(step, "tool", f"{action.tool}({action.argument})"))
             if message_sink is not None:
                 message_sink("assistant", f"工具调用: {action.tool}({action.argument})")
             try:
-                result = self.tools.call(action.tool, action.argument)
+                tool_result = self.tools.call(action.tool, action.argument)
             except ToolError as exc:
                 result = f"error: {exc}"
+                tool_detail = action.tool
+                observation_detail = result
+            else:
+                if isinstance(tool_result, ToolObservation):
+                    result = tool_result.content
+                    tool_detail = action.tool
+                    observation_detail = tool_result.trace_detail
+                else:
+                    result = tool_result
+                    tool_detail = f"{action.tool}({action.argument})"
+                    observation_detail = result
+            records.append(StepRecord(step, "tool", tool_detail))
             context.append(f"观察: {result}")
             if message_sink is not None:
                 message_sink("tool", f"观察: {result}")
-            records.append(StepRecord(step, "observation", result))
+            records.append(StepRecord(step, "observation", observation_detail))
         return Trace(strategy="react", records=tuple(records), success=False)
 
 
@@ -228,8 +247,14 @@ class PlanExecuteStrategy:
             assert action.tool is not None and action.argument is not None
             records.append(StepRecord(step_number, "tool", f"{action.tool}({action.argument})"))
             try:
-                result = self.tools.call(action.tool, action.argument)
-                records.append(StepRecord(step_number, "observation", result))
+                tool_result = self.tools.call(action.tool, action.argument)
+                if isinstance(tool_result, ToolObservation):
+                    result = tool_result.content
+                    trace_detail = tool_result.trace_detail
+                else:
+                    result = tool_result
+                    trace_detail = result
+                records.append(StepRecord(step_number, "observation", trace_detail))
                 answers.append(result)
             except ToolError as exc:
                 records.append(StepRecord(step_number, "observation", f"error: {exc}"))

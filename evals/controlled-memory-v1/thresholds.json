@@ -1,0 +1,12 @@
+{
+  "suite_id": "controlled-memory-v1",
+  "metrics": {
+    "expected_recall_rate": 1.0,
+    "scope_isolation_rate": 1.0,
+    "unconfirmed_exclusion_rate": 1.0,
+    "budget_compliance_rate": 1.0,
+    "injection_boundary_rate": 1.0,
+    "determinism_rate": 1.0,
+    "state_contract_rate": 1.0
+  }
+}

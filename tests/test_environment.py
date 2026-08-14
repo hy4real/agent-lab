@@ -82,7 +82,7 @@ def test_environment_assembles_full_context(tmp_path) -> None:
     long_term = LongTermMemory(state_path=tmp_path / "longterm.json", clock=lambda: "2026-07-31T00:00:00+00:00")
     long_term.add("缓存方案已定")
     short_term = MemoryState(summary="摘要", recent_messages=(Message("user", "最近消息"),), budget_tokens=100)
-    context = _environment().build_context(short_term, long_term, "缓存", top_k=1)
+    context = _environment().build_context(short_term, long_term, "缓存", scope="local", top_k=1)
     assert context[0].role == "system"
     assert context[-1] == Message("user", "最近消息")
 
@@ -96,6 +96,7 @@ def test_environment_feeds_and_updates_short_term_memory(tmp_path) -> None:
         short_term=short_term,
         long_term=long_term,
         query="天气",
+        memory_scope="local",
         initial_context=("系统规则",),
     )
     contents = tuple(message.content for message in short_term.state().recent_messages)
@@ -104,6 +105,16 @@ def test_environment_feeds_and_updates_short_term_memory(tmp_path) -> None:
     assert any(content.startswith("观察:") for content in contents)
     assert contents[-1] == "平均温度 23.3"
     assert run.context_messages == len(short_term.state().recent_messages) + 1
+
+
+def test_environment_requires_explicit_scope_for_long_term_memory(tmp_path) -> None:
+    long_term = LongTermMemory(state_path=tmp_path / "longterm.json")
+    with pytest.raises(ValueError, match="显式 memory_scope"):
+        _environment().run(
+            "task-a",
+            short_term=ShortTermMemory(),
+            long_term=long_term,
+        )
 
 
 def test_environment_rejects_unknown_strategy() -> None:

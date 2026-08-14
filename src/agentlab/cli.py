@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .llm import LLMBackend
+from .longterm import LongTermMemory, LongTermMemoryError, MemoryRecord
 from .research.agent import ResearchAgent
 from .research.corpus import Corpus, CorpusError
 from .research.evaluation import EvaluationError, run_frozen_evaluation
@@ -67,6 +68,40 @@ def _parser() -> argparse.ArgumentParser:
 
     evaluate = subparsers.add_parser("research-eval", help="run a frozen offline research suite")
     evaluate.add_argument("--suite-root", required=True, type=Path)
+
+    memory = subparsers.add_parser("memory", help="manage controlled local long-term memory")
+    memory_actions = memory.add_subparsers(dest="memory_action", required=True)
+    memory_propose = memory_actions.add_parser("propose", help="create an inactive memory candidate from stdin")
+    _add_memory_state_arguments(memory_propose)
+    memory_propose.add_argument("--scope", required=True)
+    memory_propose.add_argument(
+        "--kind",
+        required=True,
+        choices=("note", "preference", "decision", "constraint"),
+    )
+    memory_propose.add_argument("--origin", required=True, choices=("manual", "message"))
+    memory_propose.add_argument("--source-message-id", action="append", default=[])
+    memory_propose.add_argument("--expected-revision", required=True, type=int)
+
+    for action, help_text in (
+        ("confirm", "confirm one candidate"),
+        ("deactivate", "deactivate one candidate or confirmed record"),
+    ):
+        transition = memory_actions.add_parser(action, help=help_text)
+        _add_memory_state_arguments(transition)
+        transition.add_argument("record_id")
+        transition.add_argument("--scope", required=True)
+        transition.add_argument("--expected-revision", required=True, type=int)
+
+    memory_list = memory_actions.add_parser("list", help="list memory metadata without record text")
+    _add_memory_state_arguments(memory_list)
+    memory_list.add_argument("--scope", required=True)
+    memory_list.add_argument("--status", choices=("candidate", "confirmed", "inactive"))
+
+    memory_import = memory_actions.add_parser("import-legacy", help="dry-run or apply an in-place v1 import")
+    _add_memory_state_arguments(memory_import)
+    memory_import.add_argument("--scope", required=True)
+    memory_import.add_argument("--apply", action="store_true")
 
     serve = subparsers.add_parser("serve", help="serve a fixed corpus over loopback")
     serve.add_argument("--corpus", required=True, type=Path)
@@ -171,6 +206,50 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "research-eval":
             _write_json(run_frozen_evaluation(args.suite_root).to_dict())
             return 0
+        if args.command == "memory":
+            memory_store = LongTermMemory(state_path=args.state)
+            if args.memory_action == "propose":
+                record = memory_store.propose(
+                    sys.stdin.read(),
+                    kind=args.kind,
+                    scope=args.scope,
+                    origin=args.origin,
+                    source_message_ids=tuple(args.source_message_id),
+                    expected_revision=args.expected_revision,
+                )
+                _write_json(_memory_mutation_result(memory_store, record))
+                return 0
+            if args.memory_action == "confirm":
+                record = memory_store.confirm(
+                    args.record_id,
+                    scope=args.scope,
+                    expected_revision=args.expected_revision,
+                )
+                _write_json(_memory_mutation_result(memory_store, record))
+                return 0
+            if args.memory_action == "deactivate":
+                record = memory_store.deactivate(
+                    args.record_id,
+                    scope=args.scope,
+                    expected_revision=args.expected_revision,
+                )
+                _write_json(_memory_mutation_result(memory_store, record))
+                return 0
+            if args.memory_action == "list":
+                snapshot = memory_store.snapshot()
+                _write_json({
+                    "schema_version": snapshot.schema_version,
+                    "revision": snapshot.revision,
+                    "legacy_read_only": snapshot.legacy_read_only,
+                    "records": [
+                        _memory_record_metadata(record)
+                        for record in memory_store.list_records(scope=args.scope, status=args.status)
+                    ],
+                })
+                return 0
+            if args.memory_action == "import-legacy":
+                _write_json(memory_store.import_legacy(scope=args.scope, apply=args.apply).to_dict())
+                return 0
         if args.command == "serve":
             if args.port < 1 or args.port > 65535:
                 raise ValueError("port 必须在 1..65535")
@@ -188,6 +267,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (
         CorpusError,
         EvaluationError,
+        LongTermMemoryError,
         RagEvaluationError,
         RagIndexError,
         ValueError,
@@ -200,6 +280,36 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _write_json(value: object) -> None:
     print(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+
+def _add_memory_state_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--state",
+        type=Path,
+        default=Path(".agentlab") / "longterm.json",
+        help="local memory state path",
+    )
+
+
+def _memory_record_metadata(record: MemoryRecord) -> dict[str, object]:
+    return {
+        "id": record.id,
+        "kind": record.kind,
+        "scope": record.scope,
+        "status": record.status,
+        "origin": record.origin,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+        "content_hash": record.content_hash,
+        "source_message_count": len(record.source_message_ids),
+    }
+
+
+def _memory_mutation_result(memory: LongTermMemory, record: MemoryRecord) -> dict[str, object]:
+    return {
+        "revision": memory.snapshot().revision,
+        "record": _memory_record_metadata(record),
+    }
 
 
 if __name__ == "__main__":

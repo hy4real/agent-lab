@@ -14,6 +14,7 @@ from agentlab.reasoning import (
     ReActStrategy,
     ToolError,
     ToolExecutor,
+    ToolObservation,
     render_comparison,
     run_comparison,
 )
@@ -115,6 +116,25 @@ def test_react_survives_tool_error_without_crashing() -> None:
     trace = ReActStrategy(reasoner=reasoner, tools=tools).run("task-c")
     assert trace.success is True
     assert any("error:" in record.detail for record in trace.records if record.kind == "observation")
+
+
+def test_react_uses_safe_trace_detail_for_sensitive_tool_observation() -> None:
+    class SensitiveTools:
+        def names(self):
+            return ("memory_search",)
+
+        def call(self, tool, argument):
+            return ToolObservation("private result", "memory_search:ok:1")
+
+    reasoner = DeterministicReasoner(
+        tool_sequence={"task": (("memory_search", "private query"),)},
+        answers={"task": "done"},
+    )
+    trace = ReActStrategy(reasoner=reasoner, tools=SensitiveTools()).run("task")
+    trace_text = "\n".join(record.detail for record in trace.records)
+    assert "private query" not in trace_text
+    assert "private result" not in trace_text
+    assert "memory_search:ok:1" in trace_text
 
 
 def test_max_steps_enforced() -> None:

@@ -11,6 +11,7 @@
 - README 改为公开读者视角，说明离线默认、安装入口、Demo、评测和能力边界。
 - sdist/wheel 使用显式 allowlist；新增标准公开文件必须同时加入 allowlist 与离线审计。
 - 代码、测试、fixture、文档和示例未发现真实用户数据、密钥或本机绝对路径。
+- v1.5 Controlled Memory 的公开 fixture 仅包含合成记录；CLI 默认不回显记忆正文或状态路径，canonical report 只包含 ID 无关的计数、hash、指标和稳定 probe 名称。
 
 ## 不得由本报告推导的结论
 

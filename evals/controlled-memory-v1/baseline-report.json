@@ -1,0 +1,27 @@
+{
+  "case_count": 8,
+  "cases_hash": "43bfcad1bdf6fcfa52215decf814019ac0719e1fe34fe1b1c1943e0a55aa8ed5",
+  "failures": [],
+  "metrics": {
+    "budget_compliance_rate": 1.0,
+    "determinism_rate": 1.0,
+    "expected_recall_rate": 1.0,
+    "injection_boundary_rate": 1.0,
+    "scope_isolation_rate": 1.0,
+    "state_contract_rate": 1.0,
+    "unconfirmed_exclusion_rate": 1.0
+  },
+  "passed": true,
+  "record_count": 7,
+  "records_hash": "f71476a70d9005634119ddc4adacbb530547b6c4a800b289395d05f1a47fa495",
+  "state_probes": {
+    "cas_conflict": true,
+    "concurrent_write": true,
+    "corruption_rejected": true,
+    "feedback_loop_absent": true,
+    "legacy_migration": true
+  },
+  "suite_id": "controlled-memory-v1",
+  "suite_version": 1,
+  "thresholds_hash": "32c0df9c9a18e813fd9eafbbb3e8fe59ae131369d8537d2479cd5e4614245351"
+}

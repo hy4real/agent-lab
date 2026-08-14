@@ -19,6 +19,27 @@ python3 -m venv .venv
 
 `research` 默认完全离线。`--live` 需要先安装 `.[live]`，并会把问题、选中的 chunks 和工具观察发给 OpenAI-compatible Provider；该边界也会写到 stderr。
 
+## Controlled Memory
+
+长期记忆采用显式 candidate → confirmed/inactive 生命周期。只有同 scope 的 confirmed 记录可召回；Agent 不会自动抽取或写入事实，记忆也不能成为 Research Citation Source。
+
+```bash
+printf 'Project demo uses a local queue.' | .venv/bin/agentlab memory propose \
+  --scope project:demo --kind decision --origin manual --expected-revision 0
+.venv/bin/agentlab memory confirm <record-id> \
+  --scope project:demo --expected-revision 1
+.venv/bin/agentlab memory list --scope project:demo
+```
+
+CLI 默认状态为 `.agentlab/longterm.json`，正文从 stdin 读取，JSON 输出不回显正文或绝对路径。旧 schema 先执行 dry-run；只有显式 `--apply` 才会在生成逐字节 backup 后迁移：
+
+```bash
+.venv/bin/agentlab memory import-legacy --scope project:demo
+.venv/bin/agentlab memory import-legacy --scope project:demo --apply
+```
+
+ReAct 可按 run 显式启用 `memory_search`：自动召回最多 2 条/512 estimated tokens，主动搜索每次最多 5 条/1024 tokens、每轮最多 2 次。记忆正文只进入当轮规划上下文，Trace 只保存工具名、状态和结果数量。`plan_execute` 仍不支持 memory context。
+
 ## Hybrid RAG
 
 Hybrid retrieval 是显式安装和显式选择的可选路径；默认 lexical 行为不变。
@@ -79,6 +100,15 @@ RAGChecker paper-to-code 实验使用独立的 oracle-label suite：
 
 该实验复现论文的 claim-level 指标计算层，并让三个真实 `ResearchAgent` 合成运行分别呈现 clean context、irrelevant noise 与 retrieval miss。它不包含 claim extractor、entailment model 或论文 benchmark，不能表述为完整 RAGChecker 复现或模型质量评测。
 
+### Controlled Memory Evaluation
+
+```bash
+.venv/bin/python scripts/evaluate_controlled_memory.py \
+  --suite-root evals/controlled-memory-v1
+```
+
+冻结 suite 包含 7 条合成记录、8 个查询、7 项 100% 契约门槛，以及 migration、corruption、CAS、concurrent write 和 feedback-loop probe。canonical report 当前全部通过；它不证明模型记忆质量、真实用户价值、生产并发或多租户能力。
+
 ## 范围
 
 - Run 1：短期记忆（`docs/memory-design.md`）
@@ -91,6 +121,7 @@ RAGChecker paper-to-code 实验使用独立的 oracle-label suite：
 - v0.9-v1.1：Evidence Research Agent（`docs/v0.9-v1.1-research-agent-plan.md`）
 - v1.2：Hybrid RAG、Qdrant local index 与 grounded prompt（`docs/v1.2-hybrid-rag-plan.md`）
 - v1.3：RAGChecker claim-level 指标层复现（`docs/v1.3-ragchecker-paper-to-code-plan.md`）
+- v1.5：受控长期记忆、scope/预算/并发契约与冻结评测（`docs/v1.5-controlled-memory-plan.md`）
 - Case study：Evidence Research Agent 工程实现与验证（`docs/evidence-research-agent-case-study.md`）
 - RAG report：冻结合成评测与边界（`docs/rag-evaluation-report.md`）
 - Paper-to-code report：RAGChecker 方法映射、实验结果与边界（`docs/ragchecker-paper-to-code-report.md`）

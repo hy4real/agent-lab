@@ -58,7 +58,7 @@ def run_demo(*, budget_tokens: int = 32) -> str:
 
 
 def run_longterm_demo(*, top_k: int = 2) -> str:
-    """Fixed entries, fixed query, fixed clock: fully reproducible retrieval."""
+    """Fixed proposal/confirmation flow and bounded recall."""
     state_dir = Path(tempfile.mkdtemp(prefix="agentlab-longterm-demo."))
     state_file = state_dir / "longterm.json"
     memory = LongTermMemory(state_path=state_file, clock=lambda: "2026-07-31T00:00:00+00:00")
@@ -69,19 +69,34 @@ def run_longterm_demo(*, top_k: int = 2) -> str:
             "会议结论：优先可离线复现的评测",
         )
         lines: list[str] = []
+        revision = 0
         for text in entries:
-            entry = memory.add(text)
-            lines.append(f"add: {entry.id} {text!r}")
+            entry = memory.propose(
+                text,
+                kind="note",
+                scope="demo",
+                origin="manual",
+                expected_revision=revision,
+            )
+            revision += 1
+            lines.append(f"propose: {entry.id} status={entry.status}")
+            entry = memory.confirm(entry.id, scope="demo", expected_revision=revision)
+            revision += 1
+            lines.append(f"confirm: {entry.id} status={entry.status}")
         query = "缓存 离线 评测"
         lines.append(f"query: {query!r}")
-        for entry in memory.retrieve(query, top_k=top_k):
+        for entry in memory.search(query, scope="demo", top_k=top_k):
             lines.append(f"retrieved: {entry.id} {entry.text!r}")
-        for message in inject_long_term(memory, query, top_k=top_k):
+        for message in inject_long_term(memory, query, scope="demo", top_k=top_k):
             lines.append(f"injected: {message.role} {message.content!r}")
         return "\n".join(lines)
     finally:
         try:
             state_file.unlink()
+        except FileNotFoundError:
+            pass
+        try:
+            state_file.with_name(f"{state_file.name}.lock").unlink()
         except FileNotFoundError:
             pass
         state_dir.rmdir()

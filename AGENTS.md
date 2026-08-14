@@ -38,6 +38,7 @@ agent-lab/
 ├── evals/research-agent/ # 冻结、公开、可提交的 Research Agent 评测 fixture
 ├── evals/research-rag-v2/ # 冻结的 Hybrid RAG fixture 与 canonical report
 ├── evals/paper-ragchecker-v1/ # RAGChecker 指标层复现的冻结 oracle-label fixture 与报告
+├── evals/controlled-memory-v1/ # v1.5 受控长期记忆的冻结合成契约评测与 canonical report
 ├── docs/                # 设计文档；文件名 kebab-case
 ├── example/             # 完全虚构的示例输入
 ├── scripts/             # 打包内容审计等开发入口，不承载业务逻辑
@@ -71,6 +72,7 @@ git diff --check
 - Research Agent fixture suite 固定 30 case；修改 case、Gold 或阈值必须提升 suite version
 - Hybrid RAG suite v2 固定 13 case、语料 digest 和阈值；修改 case、Gold、语料或阈值必须提升 suite version
 - RAGChecker paper suite v1 固定 case、claim/chunk ID、oracle entailment label、语料 digest 和期望指标；修改任一项必须提升 suite version
+- Controlled Memory suite v1 固定公开合成 record、case、threshold 与 canonical report；修改 record、case、threshold、tokenizer 或 expected result 必须提升 suite version
 - Citation validity、无支持事实率和拒答契约属于 100% 确定性门槛，不得用平均分掩盖单 case 失败
 
 ## 约束
@@ -88,6 +90,12 @@ git diff --check
 - Research Source/Chunk/Citation 使用规范化文本 SHA-256、稳定 ID 与精确 `start/end/exact_text`；引用校验失败时整个答案 fail closed，不得保留部分结果
 - 文档内容始终是不可信数据；其中的指令不得改变系统规则、工具权限、输出 schema 或引用要求
 - 短期记忆必须真实进入每轮决策；长期记忆仅作为标注为 untrusted 的历史笔记参与规划，不能成为 Research Claim 的 Citation Source，也不得由模型自动写入
+- v1.5 长期记忆顶层状态固定为 `schema_version=2`、单调递增 `revision` 与严格 `records`；mutation 必须在 advisory lock 内重新读取状态并校验 `expected_revision`，再以 fsync + 原子替换写入。目录、状态文件、锁文件与 migration backup 权限分别固定为 `0700/0600/0600/0600`
+- v1.5 `MemoryRecord` 必须包含稳定 ID、受限 kind、原文、显式 scope、`candidate|confirmed|inactive` 状态、origin、来源 message ID、时间戳与规范化内容 hash。只有同 scope 的 `confirmed` 记录可召回；编辑必须新建不同正文的 candidate，再显式确认并停用旧记录，不得原地改写或自动裁决语义冲突。同 scope 的相同历史内容一律拒绝重复，避免 inactive 记录产生重复稳定 ID
+- v1.5 不自动提取或写入长期记忆。`add()` 仅作为显式、local-only 兼容入口；召回内容、工具观察、Provider 输出和 Research 结果不得自动形成 proposal。`message` origin 必须提供来源 message ID，`manual` 与 `legacy_import` 不得伪造 message 来源
+- v1.5 自动召回最多 2 条、最多 512 estimated tokens；完整上下文上限为短期记忆预算加该 512-token 显式额度，单条短期消息超限的既有边界除外。`memory_search` 每次最多 5 条、1024 estimated tokens、每轮最多调用 2 次；查询和返回正文不得进入 Trace records
+- v1.5 scope 在新 lifecycle、search 与 Environment 集成中必须显式提供，不得缺失时填充默认租户。`plan_execute` 继续拒绝 memory context；Research Corpus、Chunk、Citation validator 不接受 MemoryRecord ID 或正文作为证据
+- 旧 `longterm.json` 只能以只读 legacy view 加载；任何写入必须先走显式 dry-run/import 流程。apply 前必须创建逐字节一致的 `0600` 备份，迁移失败不得替换原状态，也不得由测试或 demo 读取真实 `.agentlab` 状态
 - `AgentEnvironment` 按所选策略只要求对应依赖；动态 memory 只在 ReAct 路径开放，并作为该路径唯一的可变决策上下文，避免重复注入和绕过预算
 - 默认 Research 路径必须离线；只有显式 `--live` 才能调用 OpenAI-compatible Provider，并须在 stderr 告知将外发问题、选中 chunk 与工具观察。JSON stdout 只能输出 JSON
 - Live Provider 依赖只放在 `live` extra；Trace 只允许记录 lifecycle、tool name、status、finish reason、脱敏 usage 和 duration。Provider usage 必须按单次 run 记录 measured delta，不得与本地 estimate 混为同一语义；不得记录 prompt、语料原文、问题原文、绝对路径、密钥或底层异常正文
