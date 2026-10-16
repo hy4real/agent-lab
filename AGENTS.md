@@ -57,6 +57,8 @@ agent-lab/
 
 ## 测试与验证
 
+**推送前必须跑完下列全部 7 项**；少跑一项即视为本轮未验证（打包审计 `check_package_contents.py` 是 fail-closed 白名单，新增文件不登记就会在 CI 才暴露）。
+
 ```bash
 .venv/bin/pytest --cov=agentlab --cov-report=term-missing --cov-fail-under=90
 .venv/bin/python -m compileall -q src tests
