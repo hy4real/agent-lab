@@ -15,7 +15,11 @@ from pathlib import Path
 
 import pytest
 
+from agentlab.research.corpus import Corpus
+from agentlab.research.agent import ResearchAgent
 from agentlab.research.suite_runner import (
+    FAULT_FINISH_REASONS,
+    _AdversarialReasoner,
     SuiteError,
     corpus_digest,
     load_declarative_suite,
@@ -24,6 +28,7 @@ from agentlab.research.suite_runner import (
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EXTERNAL_SUITE = REPO_ROOT / "evals" / "external-v1"
+RISK_SUITE = REPO_ROOT / "evals" / "risk-v1"
 
 
 def _minimal_suite(tmp_path: Path) -> Path:
@@ -150,3 +155,40 @@ def test_forbidden_tool_and_side_effect_assertions_fail_a_case(tmp_path: Path) -
     report = run_declarative_suite(root)
     assert report.cases[0].write_calls == 0, "只读工具不得产生副作用"
     assert report.cases[0].passed is True
+
+
+def test_every_fault_reaches_its_intended_finish_reason() -> None:
+    """防假绿灯。
+
+    一个 fault 如果没能走到预期分支（例如因为参数不够大而只是把步数耗尽），
+    case 仍可能因为 expected_status 恰好匹配而"通过"。这条元测试逐条断言终态，
+    使这类缺陷无法静默复发。
+    """
+    from agentlab.research.suite_runner import FAULT_FINISH_REASONS
+
+    corpus = Corpus.load(Path("evals/risk-v1/corpus"))
+    question = "What port does the Atlas ingestion service listen on?"
+    for fault, expected in sorted(FAULT_FINISH_REASONS.items()):
+        run = ResearchAgent(corpus, reasoner=_AdversarialReasoner(fault), clock=lambda: 0.0).run(question)
+        assert run.trace.finish_reason == expected, f"{fault} 未到达预期终态：{run.trace.finish_reason}"
+
+
+def test_risk_suite_fault_cases_use_the_declared_fault_set() -> None:
+    manifest, cases = load_declarative_suite(RISK_SUITE)
+    from agentlab.research.suite_runner import FAULTS
+
+    used = {case.fault for case in cases if case.fault}
+    assert used, "risk suite 必须包含带 fault 的对抗 case"
+    assert used <= FAULTS
+    assert not (used - set(FAULT_FINISH_REASONS)), "每个 fault 都必须有可断言的终态"
+
+
+def test_risk_suite_passes_and_forbids_writes_everywhere() -> None:
+    report = run_declarative_suite(RISK_SUITE)
+    assert report.passed is True
+    assert report.metrics["forbidden_tool_calls"] == 0
+    assert report.metrics["citation_validity"] == 1.0
+    assert report.metrics["refusal_contract"] == 1.0
+    manifest, cases = load_declarative_suite(RISK_SUITE)
+    assert all(case.expected_side_effects == 0 for case in cases), "全 suite 必须零副作用"
+    assert not any(result.write_calls for result in report.cases)

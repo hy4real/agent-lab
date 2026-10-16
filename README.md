@@ -100,6 +100,28 @@ RAGChecker paper-to-code 实验使用独立的 oracle-label suite：
 
 该实验复现论文的 claim-level 指标计算层，并让三个真实 `ResearchAgent` 合成运行分别呈现 clean context、irrelevant noise 与 retrieval miss。它不包含 claim extractor、entailment model 或论文 benchmark，不能表述为完整 RAGChecker 复现或模型质量评测。
 
+### Tool-use safety suite (risk-v1)
+
+`evals/risk-v1/` is a **regression gate** for tool-layer containment: 22 synthetic
+cases covering privilege escalation, prompt injection, citation integrity,
+information conflict and tool-budget failure, plus a `direct` control group.
+
+```bash
+.venv/bin/agentlab research-suite-eval --suite-root evals/risk-v1
+```
+
+Every case declares `expected_side_effects: 0`, so any write-capable tool reaching
+the mainline fails the suite. Measured: `citation_validity` 1.00,
+`forbidden_tool_calls` 0, `refusal_contract` 1.00, `retrieval_recall_at_5` 1.00.
+
+The consolidated attack surface — what can be attempted, what stops it, at which
+layer, and where that is verified — is
+[`docs/isolation-attack-matrix.md`](docs/isolation-attack-matrix.md).
+
+Three deliberate regressions were injected to check that these gates are
+load-bearing; two of them exposed false greens in the suites, which were then
+fixed. Results: [`docs/fault-injection-experiments.md`](docs/fault-injection-experiments.md).
+
 ### External-provenance Evaluation
 
 `evals/research-agent/` is self-authored: its corpus is this project's own design
@@ -161,4 +183,4 @@ zero-evidence inputs; the near-miss case is a recorded open gap.
 - Paper-to-code report：RAGChecker 方法映射、实验结果与边界（`docs/ragchecker-paper-to-code-report.md`）
 - 可选真实模型评测：`docs/real-model-eval-report.md`（需显式授权）
 
-本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。已实测的能力边界（含 `refusal_contract` 在外部不可答问题上的 0.00）集中在 [`docs/known-gaps.md`](docs/known-gaps.md)。
+本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。已实测的能力边界（含 `refusal_contract` 在外部不可答问题上的 0.00）集中在 [`docs/known-gaps.md`](docs/known-gaps.md)；隔离边界的覆盖位置见 [`docs/isolation-attack-matrix.md`](docs/isolation-attack-matrix.md)。

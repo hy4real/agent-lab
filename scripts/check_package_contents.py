@@ -35,6 +35,8 @@ docs/demo-output.txt
 docs/evidence-research-agent-case-study.md
 docs/environment-design.md
 docs/evaluation-design.md
+docs/fault-injection-experiments.md
+docs/isolation-attack-matrix.md
 docs/known-gaps.md
 docs/longterm-design.md
 docs/memory-design.md
@@ -50,6 +52,15 @@ docs/v0.9-v1.1-research-agent-plan.md
 docs/v1.2-hybrid-rag-plan.md
 docs/v1.3-ragchecker-paper-to-code-plan.md
 docs/v1.5-controlled-memory-plan.md
+evals/risk-v1/suite.json
+evals/risk-v1/canonical-report.json
+evals/risk-v1/PROVENANCE.md
+evals/risk-v1/corpus/alpha-config.md
+evals/risk-v1/corpus/beta-config.md
+evals/risk-v1/corpus/catalog.md
+evals/risk-v1/corpus/injection-field-note.md
+evals/risk-v1/corpus/injection-handbook.md
+evals/risk-v1/corpus/ops-runbook.md
 evals/external-v1/suite.json
 evals/external-v1/canonical-report.json
 evals/external-v1/corpus/ccc-00.md

@@ -24,8 +24,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
+from ..reasoning import Action
 from .agent import ResearchAgent
-from .artifacts import ResearchValidationError
+from .artifacts import Citation, Claim, ResearchAnswer, ResearchValidationError
 from .corpus import Corpus
 
 SUITE_SCHEMA = 1
@@ -43,12 +44,114 @@ _REQUIRED_TOP_LEVEL = {
     "cases",
 }
 _REQUIRED_CASE = {"id", "category", "provenance", "question", "gold_sources", "expected_status"}
-_OPTIONAL_CASE = {"gold_span", "source_qa_id", "forbid_tools", "expected_side_effects"}
+_OPTIONAL_CASE = {"gold_span", "source_qa_id", "forbid_tools", "expected_side_effects", "fault"}
+# 每个 fault 必须到达的终态。runner 无法自动判断"fault 是否真的走到了预期分支"，
+# 所以由测试逐条断言 —— 否则 fault 可能只是把步数耗尽，让 case 以错误的理由通过。
+FAULT_FINISH_REASONS = {
+    "unknown_tool": "tool_failure",
+    "invalid_arguments": "tool_failure",
+    "path_traversal": "tool_failure",
+    "step_budget": "step_budget_exhausted",
+    "fabricated_citation": "validation_failed",
+}
+FAULTS = frozenset(
+    {
+        "unknown_tool",
+        "invalid_arguments",
+        "step_budget",
+        "path_traversal",
+        "fabricated_citation",
+    }
+)
 _VALID_STATUS = {"answered", "insufficient_evidence"}
 
 
 class SuiteError(ValueError):
     """Stable suite error; messages never include local paths or content."""
+
+
+class _AdversarialReasoner:
+    """Drive the real tool loop with a hostile action instead of a benign one.
+
+    Each fault is an attempt to step outside the corpus contract: call a tool
+    that was never registered, smuggle a filesystem path through ``chunk_id``,
+    or return more bytes than the tool declared. The runner asserts on the
+    observed outcome, so a defence regression fails the case rather than
+    silently passing.
+    """
+
+    def __init__(self, fault: str) -> None:
+        self.fault = fault
+
+    def decide(self, *, task: str, context: tuple[str, ...], available_tools: tuple[str, ...]) -> Action:
+        by_tool: dict[str, list[Any]] = {}
+        for item in context:
+            payload = item.split("观察: ", 1)[-1]
+            if not payload.startswith("{"):
+                continue
+            try:
+                observation = json.loads(payload)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(observation, dict) and "tool" in observation:
+                by_tool.setdefault(str(observation["tool"]), []).append(observation.get("data"))
+        if self.fault == "step_budget":
+            return Action(kind="tool", tool="list_sources", argument="{}")
+        if any("error:" in item for item in context):
+            return Action(kind="finish", answer=ResearchAnswer.refused("tool_failure").to_json())
+        if self.fault == "unknown_tool":
+            return Action(kind="tool", tool="write_file", argument="{}")
+        if self.fault == "invalid_arguments":
+            return Action(kind="tool", tool="search_corpus", argument="{bad-json")
+        if self.fault == "path_traversal":
+            return Action(
+                kind="tool",
+                tool="read_chunk",
+                argument=json.dumps({"chunk_id": "../../../etc/passwd"}, ensure_ascii=False),
+            )
+        if self.fault == "fabricated_citation":
+            # 完整走一遍正常流程（list_sources -> search_corpus -> read_chunk），
+            # 再用一个 span 合法、但文本被篡改的引用收尾。
+            # span 落在 chunk 范围内，所以只有 exact_text 比对能拦下它。
+            if "list_sources" not in by_tool:
+                return Action(kind="tool", tool="list_sources", argument="{}")
+            hits = by_tool.get("search_corpus", [])
+            if not hits:
+                return Action(
+                    kind="tool",
+                    tool="search_corpus",
+                    argument=json.dumps({"query": task, "top_k": 3}, ensure_ascii=False),
+                )
+            reads = [
+                item
+                for item in by_tool.get("read_chunk", [])
+                if isinstance(item, dict) and isinstance(item.get("start"), int)
+            ]
+            if not reads:
+                first = (hits[-1] or [{}])[0] if isinstance(hits[-1], list) and hits[-1] else {}
+                chunk_id = first.get("chunk_id")
+                if not chunk_id:
+                    return Action(kind="finish", answer=ResearchAnswer.refused("no_citable_evidence").to_json())
+                return Action(
+                    kind="tool", tool="read_chunk", argument=json.dumps({"chunk_id": str(chunk_id)}, ensure_ascii=False)
+                )
+            read = reads[0]
+            text = str(read.get("text", ""))
+            if not text:
+                return Action(kind="finish", answer=ResearchAnswer.refused("no_citable_evidence").to_json())
+            tampered = ("X" if text[0] != "X" else "Y") + text[1:]
+            citation = Citation(
+                str(read["source_id"]),
+                str(read["chunk_id"]),
+                int(read["start"]),
+                int(read["start"]) + len(tampered),
+                tampered,
+            )
+            answer = ResearchAnswer(
+                status="answered", answer=tampered, claims=(Claim(tampered, (citation,)),), reason=None
+            )
+            return Action(kind="finish", answer=answer.to_json())
+        raise SuiteError("未知 fault")
 
 
 @dataclass(frozen=True)
@@ -61,6 +164,7 @@ class SuiteCase:
     expected_status: str
     forbid_tools: tuple[str, ...] = ()
     expected_side_effects: int | None = None
+    fault: str | None = None
 
 
 @dataclass(frozen=True)
@@ -192,6 +296,9 @@ def _load_case(value: Any) -> SuiteCase:
         raise SuiteError("case expected_side_effects 无效")
     if value["expected_status"] not in _VALID_STATUS:
         raise SuiteError("case expected_status 无效")
+    fault = value.get("fault")
+    if fault is not None and fault not in FAULTS:
+        raise SuiteError("case fault 无效")
     for field in ("id", "category", "provenance", "question"):
         if not isinstance(value[field], str) or not value[field]:
             raise SuiteError(f"case {field} 无效")
@@ -204,6 +311,7 @@ def _load_case(value: Any) -> SuiteCase:
         expected_status=value["expected_status"],
         forbid_tools=tuple(forbid),
         expected_side_effects=side_effects,
+        fault=fault,
     )
 
 
@@ -231,10 +339,12 @@ def run_declarative_suite(root: Path) -> SuiteReport:
             retrieved = {hit.source_id for hit in corpus.search(case.question, top_k=5)}
             recalls.append(len(retrieved & gold_ids) / len(gold_ids))
 
-        run = ResearchAgent(corpus, clock=lambda: 0.0).run(case.question)
+        reasoner = _AdversarialReasoner(case.fault) if case.fault else None
+        run = ResearchAgent(corpus, reasoner=reasoner, clock=lambda: 0.0).run(case.question)
         cited_sources = {citation.source_id for claim in run.answer.claims for citation in claim.citations}
-        called_tools = {event.name for event in run.trace.tool_events if event.status == "ok"}
-        forbidden_called = tuple(sorted(called_tools & set(case.forbid_tools)))
+        # forbid 的语义是「连尝试都不允许」，因此统计全部 event（含 status=error 的越权尝试）。
+        attempted_tools = {event.name for event in run.trace.tool_events}
+        forbidden_called = tuple(sorted(attempted_tools & set(case.forbid_tools)))
 
         passed = run.answer.status == case.expected_status
         if case.expected_status == "answered":
