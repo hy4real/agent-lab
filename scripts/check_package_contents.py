@@ -37,6 +37,7 @@ docs/environment-design.md
 docs/evaluation-design.md
 docs/fault-injection-experiments.md
 docs/isolation-attack-matrix.md
+docs/comparison-with-community-solutions.md
 docs/known-gaps.md
 docs/longterm-design.md
 docs/memory-design.md

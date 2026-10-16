@@ -113,7 +113,8 @@ git diff --check
 - `privilege_escalation_blocked`、`symlink_rejected`、`refusal_correctness` 属于 **100% 确定性门槛**，与 Citation validity 同级，不得用平均分掩盖单 case 失败
 - 评测 case 的动作级断言为可选字段 `forbid_tools`（本次运行禁止出现的工具名）与 `expected_side_effects`（允许的副作用次数），缺省表示不约束；文本级 `expected_result` 与状态级 `expected_status` 语义不变
 - `ToolSpec` 必须显式声明 `side_effect`（`none` / `read` / `write`）与 `max_output_bytes`。`ToolRegistry.call()` 必须强制 `max_output_bytes`，越界抛 `ToolError("output_too_large")` 并记 event。评测 runner 以**声明为 `write` 的调用次数**作为副作用计数，与 case 的 `expected_side_effects` 比对，超出即该 case 失败
-- 声明与实现不符（声明 `none` 却产生副作用）**无法由 registry 自动侦测**，只能靠 handler 走受控接口 + 单测覆盖；任何新增 `write` 工具必须同时提交一条验证其副作用的单测。**不引入 `network` 副作用类型**：测试环境由 pytest-socket 禁网，网络调用面不存在
+- 声明与实现不符（声明 `none` 却产生副作用）**无法由 registry 自动侦测**，只能靠 handler 走受控接口 + 单测覆盖；任何新增 `write` 工具必须同时提交一条验证其副作用的单测。`side_effect` 描述的是**工具**。**`--live` 的 Provider 路径不是工具**，它由 `live` extra 与显式 `--live` 开关约束，不经 ToolRegistry，因此当前不引入 `network` 副作用类型
+- **不得再写「网络调用面不存在」**：`llm.py` 会真实调用 OpenAI-compatible Provider（见上文 `--live` 条款），这条路径**没有机制层的出口控制**，只有「用户显式加 `--live`」这一约定。新增**任何会出网的工具**时，同批必须引入 `network` 副作用类型、出口域名白名单，并同步更新 `docs/isolation-attack-matrix.md`
 - `evals/paper-ragchecker-v1/` 只能包含完全合成语料、人工冻结的 oracle entailment label 和确定性运行结果；它不调用 claim extractor、entailment model、Provider 或网络，不得表述为完整 RAGChecker 复现、论文结论验证或模型质量评测
 - RAGChecker 指标输入必须显式携带唯一的 ground-truth claim、response claim 和 retrieved chunk ID，并严格验证四个方向性矩阵的形状与 bool 类型；退化输入行为固定匹配所引用的官方实现版本
 - RAGChecker paper-to-code 只有在冻结评测和维护者本人方法答辩均完成后才能进入公开项目材料；答辩前只能标记为工程实现完成，不得据此声称已具备论文理解能力

@@ -64,7 +64,8 @@ Measured: `risk-v1` reports `write_calls == 0` for every case and
 
 | Not covered | Why | Consequence |
 | --- | --- | --- |
-| Network egress | no network surface exists; tests run with `--disable-socket` | a future network-backed tool must add egress control **and** a rule before it lands |
+| **Tool-layer** network egress | no tool makes network calls; the three built-in tools are `read` and take no URL | — |
+| **Provider-path** network egress (`--live`) | `llm.py` calls an OpenAI-compatible Provider; this is **not** a tool, so `ToolRegistry` never sees it. Control is the explicit `--live` opt-in plus a stderr notice, **not** a mechanism | **this is a real gap**: there is no egress allowlist. Any network-backed *tool* must add a `network` side-effect type, an allowlist, and a row here in the same change |
 | Remote multi-tenancy | excluded by `AGENTS.md` | no per-tenant quota or isolation claim may be made |
 | Resource exhaustion from a hostile *provider* | the offline path has no provider; `--live` is explicit and out of scope for these suites | not claimed |
 | Near-miss answerability | semantic, not lexical — see [`known-gaps.md`](known-gaps.md) G1 | refusal is claimed only for zero-evidence inputs |
