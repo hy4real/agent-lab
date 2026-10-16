@@ -100,6 +100,40 @@ RAGChecker paper-to-code 实验使用独立的 oracle-label suite：
 
 该实验复现论文的 claim-level 指标计算层，并让三个真实 `ResearchAgent` 合成运行分别呈现 clean context、irrelevant noise 与 retrieval miss。它不包含 claim extractor、entailment model 或论文 benchmark，不能表述为完整 RAGChecker 复现或模型质量评测。
 
+### External-provenance Evaluation
+
+`evals/research-agent/` is self-authored: its corpus is this project's own design
+docs and its questions were written by the maintainer. `evals/external-v1/` adds
+an **externally authored** counterpart built from the SQuAD 2.0 dev set (CC BY-SA
+4.0) — crowd-written questions, crowd-annotated answer spans, and crowd-labelled
+unanswerable questions. Import is scripted and reproducible:
+
+```bash
+python scripts/import-external-suite.py          # fetch + rebuild
+python scripts/import-external-suite.py --check  # verify digests offline
+.venv/bin/agentlab research-suite-eval --suite-root evals/external-v1
+```
+
+30 corpus files, 90 cases (60 answerable, 30 unanswerable). Measured:
+
+| metric | value | threshold |
+| --- | ---: | ---: |
+| `citation_validity` | 1.00 | 1.00 |
+| `unsupported_factual_claims` | 0 | 0 |
+| `retrieval_recall_at_5` | 0.983 | 0.90 |
+| `forbidden_tool_calls` | 0 | 0 |
+| `refusal_contract` | **0.00** | 1.00 |
+
+**This suite reports `passed: false`, and that is the point.** On externally
+authored near-miss questions the offline reasoner answers with verbatim-cited but
+off-question evidence instead of refusing. Self-authored unanswerable cases never
+exposed this because they were lexically disjoint from the corpus. Two lexical
+fixes were attempted and rejected by measurement. Full analysis, numbers and
+reproduction commands: [`docs/known-gaps.md`](docs/known-gaps.md).
+
+Reference to this project's refusal capability must therefore be limited to
+zero-evidence inputs; the near-miss case is a recorded open gap.
+
 ### Controlled Memory Evaluation
 
 ```bash
@@ -127,4 +161,4 @@ RAGChecker paper-to-code 实验使用独立的 oracle-label suite：
 - Paper-to-code report：RAGChecker 方法映射、实验结果与边界（`docs/ragchecker-paper-to-code-report.md`）
 - 可选真实模型评测：`docs/real-model-eval-report.md`（需显式授权）
 
-本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。
+本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。已实测的能力边界（含 `refusal_contract` 在外部不可答问题上的 0.00）集中在 [`docs/known-gaps.md`](docs/known-gaps.md)。

@@ -1,0 +1,1268 @@
+{
+ "suite_id": "external-v1",
+ "suite_schema": 1,
+ "corpus_sha256": "aa66c36f477ed75a73961ed596a7aa049f7e6c78f249a6e706ddac1c1fd4f2e6",
+ "provenance": {
+  "name": "SQuAD 2.0 (Stanford Question Answering Dataset, dev set)",
+  "version": "v2.0",
+  "url": "https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v2.0.json",
+  "license": "CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "citation": "Rajpurkar, Jia, Liang. Know What You Don't Know: Unanswerable Questions for SQuAD. ACL 2018.",
+  "sha256": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8",
+  "article": "Computational_complexity_theory",
+  "fetched_at": "2026-10-16T16:57:28+08:00",
+  "selection_rule": "paragraphs >= 400 chars, sorted by SHA-256 of normalised text, first 30; per paragraph up to 2 answerable and 1 unanswerable questions, sorted by question text",
+  "transformations": [
+   "CRLF/CR normalised to LF (matches agentlab.research.corpus._normalize)",
+   "answer offsets recomputed and asserted against the normalised text",
+   "one corpus file per paragraph, named ccc-<index>.md"
+  ]
+ },
+ "expectations": {
+  "cases": 90,
+  "corpus_files": 30,
+  "by_category": {
+   "external_direct": 60,
+   "external_unanswerable": 30
+  }
+ },
+ "thresholds": {
+  "citation_validity": 1.0,
+  "unsupported_factual_claims": 0,
+  "refusal_contract": 1.0,
+  "retrieval_recall_at_5": 0.9
+ },
+ "cases": [
+  {
+   "id": "ccc-00.md-56e17e6ee3433e1400422f7f",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "By how many kilometers does the traveling salesman problem seek to classify a route between the 15 largest cities in Germany?",
+   "gold_sources": [
+    "ccc-00.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 190,
+    "end": 194,
+    "exact_text": "2000"
+   },
+   "source_qa_id": "56e17e6ee3433e1400422f7f"
+  },
+  {
+   "id": "ccc-00.md-56e17e6ee3433e1400422f81",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What does computational complexity theory most specifically seek to answer? ",
+   "gold_sources": [
+    "ccc-00.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 520,
+    "end": 542,
+    "exact_text": "computational problems"
+   },
+   "source_qa_id": "56e17e6ee3433e1400422f81"
+  },
+  {
+   "id": "ccc-00.md-5ad537a15b96ef001a10ab9a",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How many miles does the traveling salesman problem seek to classify a route between the 15 smallest cities in Germany?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad537a15b96ef001a10ab9a"
+  },
+  {
+   "id": "ccc-01.md-56e202e9e3433e1400423244",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In what year did Edmond's characterize a \"good\" algorithm?",
+   "gold_sources": [
+    "ccc-01.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 224,
+    "end": 228,
+    "exact_text": "1965"
+   },
+   "source_qa_id": "56e202e9e3433e1400423244"
+  },
+  {
+   "id": "ccc-01.md-56e202e9e3433e1400423242",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In what year was Hatmanis and Stearn's seminal work in computational complexity received? ",
+   "gold_sources": [
+    "ccc-01.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 224,
+    "end": 228,
+    "exact_text": "1965"
+   },
+   "source_qa_id": "56e202e9e3433e1400423242"
+  },
+  {
+   "id": "ccc-01.md-5ad570b25b96ef001a10aedc",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What seminal paper is commonly considered the beginning of sociology studies?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad570b25b96ef001a10aedc"
+  },
+  {
+   "id": "ccc-02.md-56e2042ecd28a01900c67c20",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In 1962, who was responsible for the authorship of a paper published on real time-computations?",
+   "gold_sources": [
+    "ccc-02.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 233,
+    "end": 245,
+    "exact_text": "Hisao Yamada"
+   },
+   "source_qa_id": "56e2042ecd28a01900c67c20"
+  },
+  {
+   "id": "ccc-02.md-56e2042ecd28a01900c67c1f",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In what year did Raymond Sullivan publish a study of rudimentary sets?",
+   "gold_sources": [
+    "ccc-02.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 215,
+    "end": 219,
+    "exact_text": "1961"
+   },
+   "source_qa_id": "56e2042ecd28a01900c67c1f"
+  },
+  {
+   "id": "ccc-02.md-5ad5719f5b96ef001a10aeee",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What year did Dick Sullivan publish a study on rudimentary sets?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5719f5b96ef001a10aeee"
+  },
+  {
+   "id": "ccc-03.md-56e1ce08e3433e14004231a8",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "A problem set that that is hard for the expression NP can also be stated how?",
+   "gold_sources": [
+    "ccc-03.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 503,
+    "end": 510,
+    "exact_text": "NP-hard"
+   },
+   "source_qa_id": "56e1ce08e3433e14004231a8"
+  },
+  {
+   "id": "ccc-03.md-56e1ce08e3433e14004231a6",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "An algorithm for X which reduces to C would us to do what?",
+   "gold_sources": [
+    "ccc-03.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 241,
+    "end": 263,
+    "exact_text": "solve any problem in C"
+   },
+   "source_qa_id": "56e1ce08e3433e14004231a6"
+  },
+  {
+   "id": "ccc-03.md-5ad565575b96ef001a10adb5",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How is a problem set that is hard for expression QP be stated?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad565575b96ef001a10adb5"
+  },
+  {
+   "id": "ccc-04.md-56e1c9bfe3433e1400423194",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "According to reduction, if X and Y can be solved by the same algorithm then X performs what function in relationship to Y?",
+   "gold_sources": [
+    "ccc-04.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 348,
+    "end": 362,
+    "exact_text": "X reduces to Y"
+   },
+   "source_qa_id": "56e1c9bfe3433e1400423194"
+  },
+  {
+   "id": "ccc-04.md-56e1c9bfe3433e1400423196",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Polynomial time reductions are an example of what?",
+   "gold_sources": [
+    "ccc-04.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 389,
+    "end": 408,
+    "exact_text": "types of reductions"
+   },
+   "source_qa_id": "56e1c9bfe3433e1400423196"
+  },
+  {
+   "id": "ccc-04.md-5ad5632f5b96ef001a10ad6c",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What are many complexity classes not defined by?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5632f5b96ef001a10ad6c"
+  },
+  {
+   "id": "ccc-05.md-56e1bc3ae3433e1400423107",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "A specific algorithm demonstrating T(n) represents what measure of time complexity?",
+   "gold_sources": [
+    "ccc-05.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 113,
+    "end": 135,
+    "exact_text": "upper and lower bounds"
+   },
+   "source_qa_id": "56e1bc3ae3433e1400423107"
+  },
+  {
+   "id": "ccc-05.md-56e1bc3ae3433e1400423104",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Classification of resources is contingent on determining the upper and lower bounds of minimum time required by what?  ",
+   "gold_sources": [
+    "ccc-05.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 178,
+    "end": 206,
+    "exact_text": "the most efficient algorithm"
+   },
+   "source_qa_id": "56e1bc3ae3433e1400423104"
+  },
+  {
+   "id": "ccc-05.md-5ad54e7c5b96ef001a10ac76",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How does one note classify the computation time (or similar resources)?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad54e7c5b96ef001a10ac76"
+  },
+  {
+   "id": "ccc-06.md-56e17a7ccd28a01900c679a2",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In computational complexity theory, what is the term given to describe the baseline abstract question needing to be solved? ",
+   "gold_sources": [
+    "ccc-06.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 237,
+    "end": 248,
+    "exact_text": "the problem"
+   },
+   "source_qa_id": "56e17a7ccd28a01900c679a2"
+  },
+  {
+   "id": "ccc-06.md-56e17a7ccd28a01900c679a3",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Is a problem instance typically characterized as abstract or concrete?",
+   "gold_sources": [
+    "ccc-06.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 317,
+    "end": 325,
+    "exact_text": "abstract"
+   },
+   "source_qa_id": "56e17a7ccd28a01900c679a3"
+  },
+  {
+   "id": "ccc-06.md-5ad5364c5b96ef001a10ab90",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What can be viewed as a limited collection of instances together with a solution for every instance?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5364c5b96ef001a10ab90"
+  },
+  {
+   "id": "ccc-07.md-56e16182e3433e1400422e29",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "By what main attribute are computational problems classified utilizing computational complexity theory? ",
+   "gold_sources": [
+    "ccc-07.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 169,
+    "end": 194,
+    "exact_text": "their inherent difficulty"
+   },
+   "source_qa_id": "56e16182e3433e1400422e29"
+  },
+  {
+   "id": "ccc-07.md-56e16182e3433e1400422e28",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What branch of theoretical computer science deals with broadly classifying computational problems by difficulty and class of relationship?",
+   "gold_sources": [
+    "ccc-07.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 0,
+    "end": 31,
+    "exact_text": "Computational complexity theory"
+   },
+   "source_qa_id": "56e16182e3433e1400422e28"
+  },
+  {
+   "id": "ccc-07.md-5ad5316b5b96ef001a10ab75",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": " What cannot be solved by mechanical application of mathematical steps?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5316b5b96ef001a10ab75"
+  },
+  {
+   "id": "ccc-08.md-56e1d9fee3433e14004231cd",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "If P = NP is unsolved, and reduction is applied to a known NP-complete problem vis a vis Π2 to  Π1, what conclusion can be drawn for Π1?",
+   "gold_sources": [
+    "ccc-08.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 513,
+    "end": 555,
+    "exact_text": "there is no known polynomial-time solution"
+   },
+   "source_qa_id": "56e1d9fee3433e14004231cd"
+  },
+  {
+   "id": "ccc-08.md-56e1d9fee3433e14004231ce",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "If polynomial time can be utilized within an NP-complete problem, what does the imply P is equal to?",
+   "gold_sources": [
+    "ccc-08.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 244,
+    "end": 246,
+    "exact_text": "NP"
+   },
+   "source_qa_id": "56e1d9fee3433e14004231ce"
+  },
+  {
+   "id": "ccc-08.md-5ad566375b96ef001a10adce",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What happens if a problem X is in C, and soft for C?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad566375b96ef001a10adce"
+  },
+  {
+   "id": "ccc-09.md-56e1cbe2cd28a01900c67bb0",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "According to polynomial time reduction squaring can ultimately be logically reduced to what?",
+   "gold_sources": [
+    "ccc-09.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 392,
+    "end": 406,
+    "exact_text": "multiplication"
+   },
+   "source_qa_id": "56e1cbe2cd28a01900c67bb0"
+  },
+  {
+   "id": "ccc-09.md-56e1cbe2cd28a01900c67bad",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What equates to a squared integer according to polynomial time reduction?",
+   "gold_sources": [
+    "ccc-09.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 207,
+    "end": 231,
+    "exact_text": "multiplying two integers"
+   },
+   "source_qa_id": "56e1cbe2cd28a01900c67bad"
+  },
+  {
+   "id": "ccc-09.md-5ad5648b5b96ef001a10ad96",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What can the problem of dividing an integer be reduced to?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5648b5b96ef001a10ad96"
+  },
+  {
+   "id": "ccc-10.md-56e1aba0e3433e1400423095",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "It is generally assumed that a Turing machine can solve anything capable of also being solved using what?",
+   "gold_sources": [
+    "ccc-10.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 427,
+    "end": 439,
+    "exact_text": "an algorithm"
+   },
+   "source_qa_id": "56e1aba0e3433e1400423095"
+  },
+  {
+   "id": "ccc-10.md-56e1aba0e3433e1400423098",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What does a Turing machine handle on a strip of tape?",
+   "gold_sources": [
+    "ccc-10.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 117,
+    "end": 124,
+    "exact_text": "symbols"
+   },
+   "source_qa_id": "56e1aba0e3433e1400423098"
+  },
+  {
+   "id": "ccc-10.md-5ad543c05b96ef001a10abfe",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What a scientific model of a general computing machine?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad543c05b96ef001a10abfe"
+  },
+  {
+   "id": "ccc-11.md-56e1ddfce3433e14004231d5",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "If P is ultimately proven to be equal tot NP, what effect would this have on the efficiency of problems?",
+   "gold_sources": [
+    "ccc-11.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 182,
+    "end": 251,
+    "exact_text": "many important problems can be shown to have more efficient solutions"
+   },
+   "source_qa_id": "56e1ddfce3433e14004231d5"
+  },
+  {
+   "id": "ccc-11.md-56e1ddfce3433e14004231d6",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is a particular problem in biology that would benefit from determining that P = NP?",
+   "gold_sources": [
+    "ccc-11.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 365,
+    "end": 393,
+    "exact_text": "protein structure prediction"
+   },
+   "source_qa_id": "56e1ddfce3433e14004231d6"
+  },
+  {
+   "id": "ccc-11.md-5ad568175b96ef001a10ae11",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What effect would happen if P is ultimately proven to not equal NP ?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad568175b96ef001a10ae11"
+  },
+  {
+   "id": "ccc-12.md-56e1b62ecd28a01900c67aa4",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Complexity theory classifies problems based on what primary attribute?",
+   "gold_sources": [
+    "ccc-12.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 695,
+    "end": 705,
+    "exact_text": "difficulty"
+   },
+   "source_qa_id": "56e1b62ecd28a01900c67aa4"
+  },
+  {
+   "id": "ccc-12.md-56e1b62ecd28a01900c67aa3",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "The time required to output an answer on a deterministic Turing machine is expressed as what?",
+   "gold_sources": [
+    "ccc-12.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 241,
+    "end": 288,
+    "exact_text": "the total number of state transitions, or steps"
+   },
+   "source_qa_id": "56e1b62ecd28a01900c67aa3"
+  },
+  {
+   "id": "ccc-12.md-5ad54a375b96ef001a10ac4c",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How can decision problem B be solved in time x(f)?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad54a375b96ef001a10ac4c"
+  },
+  {
+   "id": "ccc-13.md-56e1ded7cd28a01900c67bd6",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is an example of an NP-intermediate problem not known to exist in P or NP-complete? ",
+   "gold_sources": [
+    "ccc-13.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 164,
+    "end": 189,
+    "exact_text": "graph isomorphism problem"
+   },
+   "source_qa_id": "56e1ded7cd28a01900c67bd6"
+  },
+  {
+   "id": "ccc-13.md-56e1ded7cd28a01900c67bd5",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is the name for a problem that meets Ladner's assertion?",
+   "gold_sources": [
+    "ccc-13.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 134,
+    "end": 158,
+    "exact_text": "NP-intermediate problems"
+   },
+   "source_qa_id": "56e1ded7cd28a01900c67bd5"
+  },
+  {
+   "id": "ccc-13.md-5ad568d35b96ef001a10ae1d",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What are four examples of problems believed to be NP=intermediate?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad568d35b96ef001a10ae1d"
+  },
+  {
+   "id": "ccc-14.md-56e181d9e3433e1400422fa0",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In a computational problem, what can be described as a string over an alphabet?",
+   "gold_sources": [
+    "ccc-14.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 41,
+    "end": 59,
+    "exact_text": "a problem instance"
+   },
+   "source_qa_id": "56e181d9e3433e1400422fa0"
+  },
+  {
+   "id": "ccc-14.md-56e181d9e3433e1400422fa3",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In the encoding of mathematical objects, what is the way in which integers are commonly expressed?",
+   "gold_sources": [
+    "ccc-14.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 349,
+    "end": 364,
+    "exact_text": "binary notation"
+   },
+   "source_qa_id": "56e181d9e3433e1400422fa3"
+  },
+  {
+   "id": "ccc-14.md-5ad5391e5b96ef001a10aba6",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How can graphs be encoded indirectly?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5391e5b96ef001a10aba6"
+  },
+  {
+   "id": "ccc-15.md-56e1b355e3433e14004230b2",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "A non-deterministic Turing machine has the ability to capture what facet of useful analysis?",
+   "gold_sources": [
+    "ccc-15.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 363,
+    "end": 372,
+    "exact_text": "branching"
+   },
+   "source_qa_id": "56e1b355e3433e14004230b2"
+  },
+  {
+   "id": "ccc-15.md-56e1b355e3433e14004230b3",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is the most critical resource in the analysis of computational problems associated with non-deterministic Turing machines?",
+   "gold_sources": [
+    "ccc-15.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 450,
+    "end": 472,
+    "exact_text": "non-deterministic time"
+   },
+   "source_qa_id": "56e1b355e3433e14004230b3"
+  },
+  {
+   "id": "ccc-15.md-5ad5489b5b96ef001a10ac2c",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What has a lot to do with how we physically want to compute algorithms?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad5489b5b96ef001a10ac2c"
+  },
+  {
+   "id": "ccc-16.md-56e1c720e3433e140042316b",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In what expression can one expect to find DTIME(n)",
+   "gold_sources": [
+    "ccc-16.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 220,
+    "end": 229,
+    "exact_text": "DTIME(n2)"
+   },
+   "source_qa_id": "56e1c720e3433e140042316b"
+  },
+  {
+   "id": "ccc-16.md-56e1c720e3433e140042316d",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Resources are constrained by hierarchy theorems to produce what?",
+   "gold_sources": [
+    "ccc-16.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 472,
+    "end": 513,
+    "exact_text": "a proper hierarchy on the classes defined"
+   },
+   "source_qa_id": "56e1c720e3433e140042316d"
+  },
+  {
+   "id": "ccc-16.md-5ad561c85b96ef001a10ad3d",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What does not define a bigger set of problems?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad561c85b96ef001a10ad3d"
+  },
+  {
+   "id": "ccc-17.md-56e16839cd28a01900c67889",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What are two basic primary resources used to guage complexity?",
+   "gold_sources": [
+    "ccc-17.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 305,
+    "end": 321,
+    "exact_text": "time and storage"
+   },
+   "source_qa_id": "56e16839cd28a01900c67889"
+  },
+  {
+   "id": "ccc-17.md-56e16839cd28a01900c67887",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What measure of a computational problem broadly defines the inherent difficulty of the solution?",
+   "gold_sources": [
+    "ccc-17.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 46,
+    "end": 92,
+    "exact_text": "if its solution requires significant resources"
+   },
+   "source_qa_id": "56e16839cd28a01900c67887"
+  },
+  {
+   "id": "ccc-17.md-5ad532575b96ef001a10ab7e",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What are three basic primary resources used to gauge complexity?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad532575b96ef001a10ab7e"
+  },
+  {
+   "id": "ccc-18.md-56e1b754cd28a01900c67abd",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "A complexity resource can also be described as what other type of resource?",
+   "gold_sources": [
+    "ccc-18.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 170,
+    "end": 192,
+    "exact_text": "computational resource"
+   },
+   "source_qa_id": "56e1b754cd28a01900c67abd"
+  },
+  {
+   "id": "ccc-18.md-56e1b754cd28a01900c67abf",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Communication complexity is an example of what type of measure?",
+   "gold_sources": [
+    "ccc-18.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 194,
+    "end": 213,
+    "exact_text": "Complexity measures"
+   },
+   "source_qa_id": "56e1b754cd28a01900c67abf"
+  },
+  {
+   "id": "ccc-18.md-5ad54b035b96ef001a10ac54",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How are complexity measures generally not defined?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad54b035b96ef001a10ac54"
+  },
+  {
+   "id": "ccc-19.md-56e1a38de3433e1400423060",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Complexity theory seeks to define the relationship between the scale of algorithms with respect to what other variable?",
+   "gold_sources": [
+    "ccc-19.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 551,
+    "end": 580,
+    "exact_text": "an increase in the input size"
+   },
+   "source_qa_id": "56e1a38de3433e1400423060"
+  },
+  {
+   "id": "ccc-19.md-56e1a38de3433e140042305e",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "How is the time needed to obtain the solution to a problem calculated?",
+   "gold_sources": [
+    "ccc-19.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 388,
+    "end": 429,
+    "exact_text": "as a function of the size of the instance"
+   },
+   "source_qa_id": "56e1a38de3433e140042305e"
+  },
+  {
+   "id": "ccc-19.md-5ad541ad5b96ef001a10abea",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How does one measure the simplicity of a computational problem?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad541ad5b96ef001a10abea"
+  },
+  {
+   "id": "ccc-20.md-56e1febfe3433e1400423237",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Despite the Presburger problem, and in view of intractability, what has been done to establish solutions in reasonable periods of time?",
+   "gold_sources": [
+    "ccc-20.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 276,
+    "end": 304,
+    "exact_text": "algorithms have been written"
+   },
+   "source_qa_id": "56e1febfe3433e1400423237"
+  },
+  {
+   "id": "ccc-20.md-56e1febfe3433e1400423239",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "How quickly can an algorithm solve an NP-complete knapsack problem?",
+   "gold_sources": [
+    "ccc-20.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 455,
+    "end": 482,
+    "exact_text": "in less than quadratic time"
+   },
+   "source_qa_id": "56e1febfe3433e1400423239"
+  },
+  {
+   "id": "ccc-20.md-5ad56ef05b96ef001a10aeaa",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What can not solve the NP-complete knapsack problem over a wide range of sizes in less than quadratic time?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad56ef05b96ef001a10aeaa"
+  },
+  {
+   "id": "ccc-21.md-56e20a3ae3433e140042324e",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "How many combinatory and graph theoretical problems, formerly believed to be plagued by intractability, did Karp's paper address?",
+   "gold_sources": [
+    "ccc-21.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 502,
+    "end": 504,
+    "exact_text": "21"
+   },
+   "source_qa_id": "56e20a3ae3433e140042324e"
+  },
+  {
+   "id": "ccc-21.md-56e20a3ae3433e140042324d",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is the paper written by Richard Karp in 1972 that ushered in a new era of understanding between intractability and NP-complete problems?",
+   "gold_sources": [
+    "ccc-21.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 433,
+    "end": 476,
+    "exact_text": "\"Reducibility Among Combinatorial Problems\""
+   },
+   "source_qa_id": "56e20a3ae3433e140042324d"
+  },
+  {
+   "id": "ccc-21.md-5ad572b15b96ef001a10af0a",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What book featured 25 diverse comninatorial and graph theoretical problems each famous for its computational intractability?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad572b15b96ef001a10af0a"
+  },
+  {
+   "id": "ccc-22.md-56e1b169cd28a01900c67a73",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In considering Turing machines and alternate variables, what measurement left unaffected by conversion between machine models? ",
+   "gold_sources": [
+    "ccc-22.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 248,
+    "end": 267,
+    "exact_text": "computational power"
+   },
+   "source_qa_id": "56e1b169cd28a01900c67a73"
+  },
+  {
+   "id": "ccc-22.md-56e1b169cd28a01900c67a75",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What commonality do alternate machine models, such as random access machines, share with Turing machines?",
+   "gold_sources": [
+    "ccc-22.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 382,
+    "end": 420,
+    "exact_text": "the machines operate deterministically"
+   },
+   "source_qa_id": "56e1b169cd28a01900c67a75"
+  },
+  {
+   "id": "ccc-22.md-5ad547945b96ef001a10ac1b",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What do all these models not have in common?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad547945b96ef001a10ac1b"
+  },
+  {
+   "id": "ccc-23.md-56e1c2eee3433e1400423136",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "A language solved in quadratic time implies the use of what type of Turing machine?",
+   "gold_sources": [
+    "ccc-23.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 318,
+    "end": 345,
+    "exact_text": "single-tape Turing machines"
+   },
+   "source_qa_id": "56e1c2eee3433e1400423136"
+  },
+  {
+   "id": "ccc-23.md-56e1c2eee3433e1400423135",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "A multi-tape Turing machine requires what type of time for a solution?",
+   "gold_sources": [
+    "ccc-23.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 218,
+    "end": 229,
+    "exact_text": "linear time"
+   },
+   "source_qa_id": "56e1c2eee3433e1400423135"
+  },
+  {
+   "id": "ccc-23.md-5ad55ee35b96ef001a10ace6",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What can not be solved in linear time on multi-tape Turing machine?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad55ee35b96ef001a10ace6"
+  },
+  {
+   "id": "ccc-24.md-56e1b00ce3433e14004230a1",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "In the determination of complexity classes, what are two examples of types of Turing machines?",
+   "gold_sources": [
+    "ccc-24.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 108,
+    "end": 172,
+    "exact_text": "probabilistic Turing machines, non-deterministic Turing machines"
+   },
+   "source_qa_id": "56e1b00ce3433e14004230a1"
+  },
+  {
+   "id": "ccc-24.md-56e1b00ce3433e140042309e",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "Turing machines are commonly employed to define what? ",
+   "gold_sources": [
+    "ccc-24.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 49,
+    "end": 67,
+    "exact_text": "complexity classes"
+   },
+   "source_qa_id": "56e1b00ce3433e140042309e"
+  },
+  {
+   "id": "ccc-24.md-5ad545545b96ef001a10ac06",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What are many types of Turing machines not used for?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad545545b96ef001a10ac06"
+  },
+  {
+   "id": "ccc-25.md-56e1ba41cd28a01900c67ae2",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is the expression used to denote a worst case complexity as expressed by time taken?",
+   "gold_sources": [
+    "ccc-25.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 251,
+    "end": 256,
+    "exact_text": "O(n2)"
+   },
+   "source_qa_id": "56e1ba41cd28a01900c67ae2"
+  },
+  {
+   "id": "ccc-25.md-56e1ba41cd28a01900c67ae0",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What provides a solution to a list of integers provided as input that ned to be sorted?",
+   "gold_sources": [
+    "ccc-25.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 22,
+    "end": 67,
+    "exact_text": "the deterministic sorting algorithm quicksort"
+   },
+   "source_qa_id": "56e1ba41cd28a01900c67ae0"
+  },
+  {
+   "id": "ccc-25.md-5ad54d625b96ef001a10ac68",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What case complexity is represented when each pivoting divides the list in thirds, also needing O(n log n) time?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad54d625b96ef001a10ac68"
+  },
+  {
+   "id": "ccc-26.md-56e1e9dfe3433e14004231ff",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "To what level would the polynomial time hierarchy collapse if graph isomorphism is NP-complete?",
+   "gold_sources": [
+    "ccc-26.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 424,
+    "end": 436,
+    "exact_text": "second level"
+   },
+   "source_qa_id": "56e1e9dfe3433e14004231ff"
+  },
+  {
+   "id": "ccc-26.md-56e1e9dfe3433e14004231fd",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What class is most commonly not ascribed to the graph isomorphism problem in spite of definitive determination?",
+   "gold_sources": [
+    "ccc-26.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 217,
+    "end": 228,
+    "exact_text": "NP-complete"
+   },
+   "source_qa_id": "56e1e9dfe3433e14004231fd"
+  },
+  {
+   "id": "ccc-26.md-5ad569c05b96ef001a10ae39",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What infinite hierarchy implies that the graph isomorphism problem s NQ-complete?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad569c05b96ef001a10ae39"
+  },
+  {
+   "id": "ccc-27.md-56e1ec83cd28a01900c67c0c",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "That there currently exists no known integer factorization problem underpins what commonly used system?",
+   "gold_sources": [
+    "ccc-27.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 323,
+    "end": 351,
+    "exact_text": "modern cryptographic systems"
+   },
+   "source_qa_id": "56e1ec83cd28a01900c67c0c"
+  },
+  {
+   "id": "ccc-27.md-56e1ec83cd28a01900c67c0b",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "The integer factorization problem essentially seeks to determine if the value of of an input is less than what variable? ",
+   "gold_sources": [
+    "ccc-27.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 224,
+    "end": 225,
+    "exact_text": "k"
+   },
+   "source_qa_id": "56e1ec83cd28a01900c67c0b"
+  },
+  {
+   "id": "ccc-27.md-5ad56aea5b96ef001a10ae49",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What computational problem is not commonly associated with prime factorization?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad56aea5b96ef001a10ae49"
+  },
+  {
+   "id": "ccc-28.md-56e1c4fce3433e140042314f",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "AC and NC are complexity classes typically associated with what type of circuit?",
+   "gold_sources": [
+    "ccc-28.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 150,
+    "end": 157,
+    "exact_text": "Boolean"
+   },
+   "source_qa_id": "56e1c4fce3433e140042314f"
+  },
+  {
+   "id": "ccc-28.md-56e1c4fce3433e1400423150",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "BQP and QMA are examples of complexity classes most commonly associated with what type of Turing machine?",
+   "gold_sources": [
+    "ccc-28.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 209,
+    "end": 216,
+    "exact_text": "quantum"
+   },
+   "source_qa_id": "56e1c4fce3433e1400423150"
+  },
+  {
+   "id": "ccc-28.md-5ad560b85b96ef001a10ad1e",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "What are the other four important complexity classes?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad560b85b96ef001a10ad1e"
+  },
+  {
+   "id": "ccc-29.md-56e1aff7cd28a01900c67a69",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What fixed set of factors determine the actions of a deterministic Turing machine",
+   "gold_sources": [
+    "ccc-29.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 76,
+    "end": 128,
+    "exact_text": "a fixed set of rules to determine its future actions"
+   },
+   "source_qa_id": "56e1aff7cd28a01900c67a69"
+  },
+  {
+   "id": "ccc-29.md-56e1aff7cd28a01900c67a68",
+   "category": "external_direct",
+   "provenance": "external",
+   "question": "What is generally considered to be the most basic iteration of a Turing machine?",
+   "gold_sources": [
+    "ccc-29.md"
+   ],
+   "expected_status": "answered",
+   "gold_span": {
+    "start": 0,
+    "end": 30,
+    "exact_text": "A deterministic Turing machine"
+   },
+   "source_qa_id": "56e1aff7cd28a01900c67a68"
+  },
+  {
+   "id": "ccc-29.md-5ad546c75b96ef001a10ac12",
+   "category": "external_unanswerable",
+   "provenance": "external",
+   "question": "How is one way that one should not view non-determinism?",
+   "gold_sources": [],
+   "expected_status": "insufficient_evidence",
+   "source_qa_id": "5ad546c75b96ef001a10ac12"
+  }
+ ]
+}

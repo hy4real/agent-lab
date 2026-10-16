@@ -31,6 +31,7 @@ class ResearchTrace:
     prompt_profile_id: str
     retrieved_candidates: int
     read_chunks: int
+    write_calls: int
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -138,6 +139,7 @@ class ResearchAgent:
             prompt_profile_id=self.prompt_profile.id,
             retrieved_candidates=self.tools.retrieved_candidates(),
             read_chunks=self.tools.read_chunks(),
+            write_calls=self.tools.write_calls(),
         )
         return ResearchRun(answer, trace)
 

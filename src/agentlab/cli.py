@@ -14,6 +14,7 @@ from .longterm import LongTermMemory, LongTermMemoryError, MemoryRecord
 from .research.agent import ResearchAgent
 from .research.corpus import Corpus, CorpusError
 from .research.evaluation import EvaluationError, run_frozen_evaluation
+from .research.suite_runner import run_declarative_suite
 from .research.live import LiveResearchReasoner
 from .research.prompt_profiles import (
     BASELINE_PROFILE_ID,
@@ -68,6 +69,12 @@ def _parser() -> argparse.ArgumentParser:
 
     evaluate = subparsers.add_parser("research-eval", help="run a frozen offline research suite")
     evaluate.add_argument("--suite-root", required=True, type=Path)
+
+    suite_eval = subparsers.add_parser(
+        "research-suite-eval", help="run a declarative offline suite (suite.json driven)"
+    )
+    suite_eval.add_argument("--suite-root", required=True, type=Path)
+    suite_eval.add_argument("--report", type=Path, default=None, help="optionally write the canonical report here")
 
     memory = subparsers.add_parser("memory", help="manage controlled local long-term memory")
     memory_actions = memory.add_subparsers(dest="memory_action", required=True)
@@ -205,6 +212,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0 if report.passed else 1
         if args.command == "research-eval":
             _write_json(run_frozen_evaluation(args.suite_root).to_dict())
+            return 0
+        if args.command == "research-suite-eval":
+            suite_report = run_declarative_suite(args.suite_root)
+            suite_payload = suite_report.to_dict()
+            if args.report is not None:
+                args.report.write_text(
+                    json.dumps(suite_payload, ensure_ascii=False, indent=1, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+            _write_json(suite_payload)
             return 0
         if args.command == "memory":
             memory_store = LongTermMemory(state_path=args.state)

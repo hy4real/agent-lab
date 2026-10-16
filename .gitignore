@@ -9,3 +9,6 @@ __pycache__/
 *.py[cod]
 build/
 dist/
+
+# 外部数据集的原始下载缓存；溯源改为在 suite.json 的每个 case 里记 source_qa_id
+evals/external-v1/.source-cache.json

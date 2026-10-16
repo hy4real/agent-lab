@@ -21,11 +21,29 @@ class ToolEvent:
     status: str
 
 
+SIDE_EFFECTS = frozenset({"none", "read", "write"})
+
+
 @dataclass(frozen=True)
 class ToolSpec:
+    """Declared contract of one callable tool.
+
+    ``side_effect`` and ``max_output_bytes`` are mandatory on purpose: AGENTS.md
+    requires every tool to state what it may touch and how large its serialised
+    result may get. A tool that keeps those implicit cannot be audited.
+    """
+
     required: Mapping[str, type]
     optional: Mapping[str, type]
     handler: Callable[[Mapping[str, Any]], Any]
+    side_effect: str
+    max_output_bytes: int
+
+    def __post_init__(self) -> None:
+        if self.side_effect not in SIDE_EFFECTS:
+            raise ValueError("side_effect 必须是 none / read / write")
+        if not isinstance(self.max_output_bytes, int) or self.max_output_bytes <= 0:
+            raise ValueError("max_output_bytes 必须是正整数")
 
 
 class ToolRegistry:
@@ -34,6 +52,7 @@ class ToolRegistry:
         self._events: list[ToolEvent] = []
         self._retrieved_candidates = 0
         self._read_chunks = 0
+        self._write_calls = 0
 
     def register(self, name: str, spec: ToolSpec) -> None:
         if not name or name in self._specs:
@@ -50,12 +69,17 @@ class ToolRegistry:
         self._events.clear()
         self._retrieved_candidates = 0
         self._read_chunks = 0
+        self._write_calls = 0
 
     def retrieved_candidates(self) -> int:
         return self._retrieved_candidates
 
     def read_chunks(self) -> int:
         return self._read_chunks
+
+    def write_calls(self) -> int:
+        """Count of successful calls to tools declared as ``write``."""
+        return self._write_calls
 
     def call(self, tool: str, argument: str) -> str:
         spec = self._specs.get(tool)
@@ -80,17 +104,23 @@ class ToolRegistry:
         except Exception as exc:
             self._events.append(ToolEvent(tool, "error"))
             raise ToolError("tool_failure") from exc
-        if tool == "search_corpus" and isinstance(result, list):
-            self._retrieved_candidates += len(result)
-        elif tool == "read_chunk":
-            self._read_chunks += 1
-        self._events.append(ToolEvent(tool, "ok"))
-        return json.dumps(
+        payload = json.dumps(
             {"ok": True, "tool": tool, "data": result},
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
         )
+        if len(payload.encode("utf-8")) > spec.max_output_bytes:
+            self._events.append(ToolEvent(tool, "error"))
+            raise ToolError("output_too_large")
+        if tool == "search_corpus" and isinstance(result, list):
+            self._retrieved_candidates += len(result)
+        elif tool == "read_chunk":
+            self._read_chunks += 1
+        if spec.side_effect == "write":
+            self._write_calls += 1
+        self._events.append(ToolEvent(tool, "ok"))
+        return payload
 
     @staticmethod
     def _validate(value: Mapping[str, Any], spec: ToolSpec) -> None:
@@ -115,6 +145,8 @@ def build_research_tools(corpus: Corpus, *, search: SearchProvider | None = None
         ToolSpec(
             required={},
             optional={},
+            side_effect="read",
+            max_output_bytes=32 * 1024,
             handler=lambda _args: [
                 {"source_id": source.id, "name": source.name, "content_hash": source.content_hash}
                 for source in corpus.list_sources()
@@ -126,6 +158,8 @@ def build_research_tools(corpus: Corpus, *, search: SearchProvider | None = None
         ToolSpec(
             required={"query": str},
             optional={"top_k": int},
+            side_effect="read",
+            max_output_bytes=16 * 1024,
             handler=lambda args: [
                 {
                     "chunk_id": hit.chunk_id,
@@ -142,6 +176,8 @@ def build_research_tools(corpus: Corpus, *, search: SearchProvider | None = None
         ToolSpec(
             required={"chunk_id": str},
             optional={},
+            side_effect="read",
+            max_output_bytes=8 * 1024,
             handler=lambda args: _render_chunk(corpus, str(args["chunk_id"])),
         ),
     )

@@ -1,0 +1,848 @@
+{
+ "boundary": "deterministic offline fixture; not model quality, user scale, or business outcome evidence",
+ "cases": [
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-00.md-56e17e6ee3433e1400422f7f",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-00.md-56e17e6ee3433e1400422f81",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-00.md-5ad537a15b96ef001a10ab9a",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-01.md-56e202e9e3433e1400423244",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-01.md-56e202e9e3433e1400423242",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-01.md-5ad570b25b96ef001a10aedc",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-02.md-56e2042ecd28a01900c67c20",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-02.md-56e2042ecd28a01900c67c1f",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-02.md-5ad5719f5b96ef001a10aeee",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-03.md-56e1ce08e3433e14004231a8",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-03.md-56e1ce08e3433e14004231a6",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-03.md-5ad565575b96ef001a10adb5",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-04.md-56e1c9bfe3433e1400423194",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-04.md-56e1c9bfe3433e1400423196",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-04.md-5ad5632f5b96ef001a10ad6c",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-05.md-56e1bc3ae3433e1400423107",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-05.md-56e1bc3ae3433e1400423104",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-05.md-5ad54e7c5b96ef001a10ac76",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-06.md-56e17a7ccd28a01900c679a2",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-06.md-56e17a7ccd28a01900c679a3",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-06.md-5ad5364c5b96ef001a10ab90",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-07.md-56e16182e3433e1400422e29",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-07.md-56e16182e3433e1400422e28",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-07.md-5ad5316b5b96ef001a10ab75",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-08.md-56e1d9fee3433e14004231cd",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-08.md-56e1d9fee3433e14004231ce",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-08.md-5ad566375b96ef001a10adce",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-09.md-56e1cbe2cd28a01900c67bb0",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-09.md-56e1cbe2cd28a01900c67bad",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-09.md-5ad5648b5b96ef001a10ad96",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-10.md-56e1aba0e3433e1400423095",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-10.md-56e1aba0e3433e1400423098",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-10.md-5ad543c05b96ef001a10abfe",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-11.md-56e1ddfce3433e14004231d5",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-11.md-56e1ddfce3433e14004231d6",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-11.md-5ad568175b96ef001a10ae11",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-12.md-56e1b62ecd28a01900c67aa4",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-12.md-56e1b62ecd28a01900c67aa3",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-12.md-5ad54a375b96ef001a10ac4c",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-13.md-56e1ded7cd28a01900c67bd6",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-13.md-56e1ded7cd28a01900c67bd5",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-13.md-5ad568d35b96ef001a10ae1d",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-14.md-56e181d9e3433e1400422fa0",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-14.md-56e181d9e3433e1400422fa3",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-14.md-5ad5391e5b96ef001a10aba6",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-15.md-56e1b355e3433e14004230b2",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-15.md-56e1b355e3433e14004230b3",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-15.md-5ad5489b5b96ef001a10ac2c",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-16.md-56e1c720e3433e140042316b",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-16.md-56e1c720e3433e140042316d",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-16.md-5ad561c85b96ef001a10ad3d",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-17.md-56e16839cd28a01900c67889",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-17.md-56e16839cd28a01900c67887",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-17.md-5ad532575b96ef001a10ab7e",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-18.md-56e1b754cd28a01900c67abd",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-18.md-56e1b754cd28a01900c67abf",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-18.md-5ad54b035b96ef001a10ac54",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-19.md-56e1a38de3433e1400423060",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-19.md-56e1a38de3433e140042305e",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-19.md-5ad541ad5b96ef001a10abea",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-20.md-56e1febfe3433e1400423237",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-20.md-56e1febfe3433e1400423239",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-20.md-5ad56ef05b96ef001a10aeaa",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-21.md-56e20a3ae3433e140042324e",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-21.md-56e20a3ae3433e140042324d",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-21.md-5ad572b15b96ef001a10af0a",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-22.md-56e1b169cd28a01900c67a73",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-22.md-56e1b169cd28a01900c67a75",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-22.md-5ad547945b96ef001a10ac1b",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-23.md-56e1c2eee3433e1400423136",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-23.md-56e1c2eee3433e1400423135",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-23.md-5ad55ee35b96ef001a10ace6",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-24.md-56e1b00ce3433e14004230a1",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-24.md-56e1b00ce3433e140042309e",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-24.md-5ad545545b96ef001a10ac06",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-25.md-56e1ba41cd28a01900c67ae2",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-25.md-56e1ba41cd28a01900c67ae0",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-25.md-5ad54d625b96ef001a10ac68",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-26.md-56e1e9dfe3433e14004231ff",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-26.md-56e1e9dfe3433e14004231fd",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-26.md-5ad569c05b96ef001a10ae39",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-27.md-56e1ec83cd28a01900c67c0c",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-27.md-56e1ec83cd28a01900c67c0b",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-27.md-5ad56aea5b96ef001a10ae49",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-28.md-56e1c4fce3433e140042314f",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-28.md-56e1c4fce3433e1400423150",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-28.md-5ad560b85b96ef001a10ad1e",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-29.md-56e1aff7cd28a01900c67a69",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_direct",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-29.md-56e1aff7cd28a01900c67a68",
+   "passed": true,
+   "status": "answered",
+   "write_calls": 0
+  },
+  {
+   "category": "external_unanswerable",
+   "finish_reason": "completed",
+   "forbidden_tools_called": [],
+   "id": "ccc-29.md-5ad546c75b96ef001a10ac12",
+   "passed": false,
+   "status": "answered",
+   "write_calls": 0
+  }
+ ],
+ "metrics": {
+  "case_pass_rate": 0.6555555555555556,
+  "citation_validity": 1.0,
+  "forbidden_tool_calls": 0,
+  "refusal_contract": 0.0,
+  "retrieval_recall_at_5": 0.9833333333333333,
+  "unsupported_factual_claims": 0
+ },
+ "passed": false,
+ "provenance": {
+  "article": "Computational_complexity_theory",
+  "citation": "Rajpurkar, Jia, Liang. Know What You Don't Know: Unanswerable Questions for SQuAD. ACL 2018.",
+  "fetched_at": "2026-10-16T16:57:28+08:00",
+  "license": "CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "name": "SQuAD 2.0 (Stanford Question Answering Dataset, dev set)",
+  "selection_rule": "paragraphs >= 400 chars, sorted by SHA-256 of normalised text, first 30; per paragraph up to 2 answerable and 1 unanswerable questions, sorted by question text",
+  "sha256": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8",
+  "transformations": [
+   "CRLF/CR normalised to LF (matches agentlab.research.corpus._normalize)",
+   "answer offsets recomputed and asserted against the normalised text",
+   "one corpus file per paragraph, named ccc-<index>.md"
+  ],
+  "url": "https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v2.0.json",
+  "version": "v2.0"
+ },
+ "suite_id": "external-v1",
+ "thresholds": {
+  "citation_validity": 1.0,
+  "refusal_contract": 1.0,
+  "retrieval_recall_at_5": 0.9,
+  "unsupported_factual_claims": 0
+ }
+}

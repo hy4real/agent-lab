@@ -39,6 +39,8 @@ agent-lab/
 ├── evals/research-rag-v2/ # 冻结的 Hybrid RAG fixture 与 canonical report
 ├── evals/paper-ragchecker-v1/ # RAGChecker 指标层复现的冻结 oracle-label fixture 与报告
 ├── evals/controlled-memory-v1/ # v1.5 受控长期记忆的冻结合成契约评测与 canonical report
+├── evals/external-v1/   # 外部来源 suite：公开数据集语料与问题，provenance 逐项可溯
+├── evals/risk-v1/       # 风险面 suite：越权/注入/冲突/证据不足/并发，动作级断言
 ├── docs/                # 设计文档；文件名 kebab-case
 ├── example/             # 完全虚构的示例输入
 ├── scripts/             # 打包内容审计等开发入口，不承载业务逻辑
@@ -73,6 +75,8 @@ git diff --check
 - Hybrid RAG suite v2 固定 13 case、语料 digest 和阈值；修改 case、Gold、语料或阈值必须提升 suite version
 - RAGChecker paper suite v1 固定 case、claim/chunk ID、oracle entailment label、语料 digest 和期望指标；修改任一项必须提升 suite version
 - Controlled Memory suite v1 固定公开合成 record、case、threshold 与 canonical report；修改 record、case、threshold、tokenizer 或 expected result 必须提升 suite version
+- External suite v1 固定语料 digest、case、阈值与 canonical report；修改任一项或更换数据集必须提升 suite version
+- Risk suite v1 固定六类 case、动作断言、阈值与 canonical report；修改 case、注入语料、阈值或期望结果必须提升 suite version
 - Citation validity、无支持事实率和拒答契约属于 100% 确定性门槛，不得用平均分掩盖单 case 失败
 
 ## 约束
@@ -101,6 +105,12 @@ git diff --check
 - Live Provider 依赖只放在 `live` extra；Trace 只允许记录 lifecycle、tool name、status、finish reason、脱敏 usage 和 duration。Provider usage 必须按单次 run 记录 measured delta，不得与本地 estimate 混为同一语义；不得记录 prompt、语料原文、问题原文、绝对路径、密钥或底层异常正文
 - FastAPI 本地进程只绑定 `127.0.0.1`；`POST /v1/research` 必须校验 loopback Host、可选 Origin 与启动时随机 session token。容器内 `0.0.0.0` 只能由 Docker ENTRYPOINT 的显式 bind 参数开启，Docker 运行示例必须只发布到宿主 `127.0.0.1`。服务启动时固定 corpus root，请求不得提交任意本地路径
 - `evals/research-agent/` 只能包含 Agent Lab 自身公开设计文档的冻结副本或完全合成的对抗语料，不得包含私人文件、受限资料或真实用户数据
+- `evals/external-v1/` 是**外部来源** suite：语料与问题必须来自公开数据集或公开文档，并在 `suite.json` 的 `provenance` 中逐项记录数据集名、版本、URL、许可与抓取时间，同时锁定内容 SHA-256。不得包含私人文件、受限资料、真实用户数据，或需要登录/付费才能获取的内容。抓取与转换只能经 `scripts/` 下的显式脚本完成，脚本必须离线可复算且失败即退出
+- `evals/risk-v1/` 是**风险面** suite：case 必须覆盖越权读取、符号链接绕过、提示注入、信息冲突、证据不足、并发重复提交六类。注入语料必须是完全合成或公开来源，并在 `evals/risk-v1/PROVENANCE.md` 中逐条记录来源；不得使用真实攻击载荷或针对真实系统的注入内容
+- `privilege_escalation_blocked`、`symlink_rejected`、`refusal_correctness` 属于 **100% 确定性门槛**，与 Citation validity 同级，不得用平均分掩盖单 case 失败
+- 评测 case 的动作级断言为可选字段 `forbid_tools`（本次运行禁止出现的工具名）与 `expected_side_effects`（允许的副作用次数），缺省表示不约束；文本级 `expected_result` 与状态级 `expected_status` 语义不变
+- `ToolSpec` 必须显式声明 `side_effect`（`none` / `read` / `write`）与 `max_output_bytes`。`ToolRegistry.call()` 必须强制 `max_output_bytes`，越界抛 `ToolError("output_too_large")` 并记 event。评测 runner 以**声明为 `write` 的调用次数**作为副作用计数，与 case 的 `expected_side_effects` 比对，超出即该 case 失败
+- 声明与实现不符（声明 `none` 却产生副作用）**无法由 registry 自动侦测**，只能靠 handler 走受控接口 + 单测覆盖；任何新增 `write` 工具必须同时提交一条验证其副作用的单测。**不引入 `network` 副作用类型**：测试环境由 pytest-socket 禁网，网络调用面不存在
 - `evals/paper-ragchecker-v1/` 只能包含完全合成语料、人工冻结的 oracle entailment label 和确定性运行结果；它不调用 claim extractor、entailment model、Provider 或网络，不得表述为完整 RAGChecker 复现、论文结论验证或模型质量评测
 - RAGChecker 指标输入必须显式携带唯一的 ground-truth claim、response claim 和 retrieved chunk ID，并严格验证四个方向性矩阵的形状与 bool 类型；退化输入行为固定匹配所引用的官方实现版本
 - RAGChecker paper-to-code 只有在冻结评测和维护者本人方法答辩均完成后才能进入公开项目材料；答辩前只能标记为工程实现完成，不得据此声称已具备论文理解能力
