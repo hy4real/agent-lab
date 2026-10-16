@@ -183,4 +183,31 @@ zero-evidence inputs; the near-miss case is a recorded open gap.
 - Paper-to-code report：RAGChecker 方法映射、实验结果与边界（`docs/ragchecker-paper-to-code-report.md`）
 - 可选真实模型评测：`docs/real-model-eval-report.md`（需显式授权）
 
-本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。已实测的能力边界（含 `refusal_contract` 在外部不可答问题上的 0.00）集中在 [`docs/known-gaps.md`](docs/known-gaps.md)；隔离边界的覆盖位置见 [`docs/isolation-attack-matrix.md`](docs/isolation-attack-matrix.md)。
+## 验证与边界
+
+本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。
+
+### 本仓库能证明什么
+
+| 断言 | 证据 | 实测 |
+| --- | --- | --- |
+| 引用逐字可回溯，证据不闭合时整答案 fail-closed | 冻结 suite + 外部 suite + `risk-v1` | `citation_validity` 1.00，`unsupported_factual_claims` 0 |
+| 语料加载期拒绝符号链接、路径逃逸、非普通文件与超限输入 | `tests/test_research_corpus.py`（含 TOCTOU 换链） | 攻击矩阵 A1–A9 |
+| 工具层是封闭世界：不接受路径或 URL，越权与畸形参数一律拒绝 | `risk-v1` 7 个对抗 case | `tool_failure`，运行拒答 |
+| 任何工具都不能产生副作用 | 全部 case 断言 `expected_side_effects: 0` | `write_calls` 全为 0 |
+| 评测套件本身是可证伪的 | 6 次故障注入实验 | 5 次抓到回归（[`docs/fault-injection-experiments.md`](docs/fault-injection-experiments.md)） |
+
+### 本仓库不能证明什么
+
+- **不可答问题的拒答能力**：离线 reasoner 只在检索零命中时拒答。对外部众包标注的"话题相关但无答案"问题，它会用逐字正确但不切题的引用作答 —— `external-v1` 上 `refusal_contract` 为 **0.00**，两组量化归因见 [`docs/known-gaps.md`](docs/known-gaps.md) G1。
+- **模型质量**：离线路径没有模型，`--live` 单次结果也不构成能力证据。
+- **并发、多租户、生产 SLA**：本项目是本地单进程，`AGENTS.md` 明确排除这些能力。
+- **真实用户价值与外部采用**：star 为 0，无外部用户，不作为目标。
+
+### 边界文档
+
+| 文档 | 内容 |
+| --- | --- |
+| [`docs/known-gaps.md`](docs/known-gaps.md) | 已实测的能力边界与根因、两次失败的修复尝试、复现命令 |
+| [`docs/isolation-attack-matrix.md`](docs/isolation-attack-matrix.md) | 26 行攻击矩阵：手法 → 防御 → 强制层 → 验证位置 → 实测结果，含刻意不防御项 |
+| [`docs/fault-injection-experiments.md`](docs/fault-injection-experiments.md) | 6 次故意注入的回归实验，含两次发现自身假绿灯的过程 |
