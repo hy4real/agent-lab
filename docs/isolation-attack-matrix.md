@@ -4,7 +4,7 @@ Single entry point for "what can an attacker try, what stops it, and where is th
 verified". Every row names the layer that actually enforces the defence, because a
 defence tested at the wrong layer is not tested.
 
-Scope: the offline research path. The project is local, offline and single-user by
+26 rows. Scope: the offline research path, plus the one write surface (optional Hybrid RAG index build). The project is local, offline and single-user by
 design; there is no network surface (pytest runs with `--disable-socket`) and no
 remote multi-tenancy (`AGENTS.md` excludes it). Rows below are therefore about
 **containing the corpus and the tool layer**, not about network egress or tenants.
@@ -36,6 +36,19 @@ remote multi-tenancy (`AGENTS.md` excludes it). Rows below are therefore about
 | A19 | Lost update between two writers (CAS) | advisory lock + `expected_revision` re-read | state write | `test_revision_conflict_does_not_overwrite_newer_state`, `test_compat_writes_from_two_instances_do_not_lose_updates` | newer state preserved |
 | A20 | Symlinked long-term state file | symlink rejected before open | state load | `test_symlink_state_is_rejected` | rejected |
 | A21 | Scope confusion — reading another scope's memory | exact scope match required; no default tenant | recall | `test_scope_isolation_is_exact`, `test_invalid_scope_fails_closed` | rejected |
+
+| A22 | Index build redirected by a symlinked `--index-dir` | `index_dir.is_symlink()` rejected before any write | index build | `test_index_dir_symlink_is_rejected` | rejected, directory left empty |
+| A23 | Existing manifest replaced by a symlink to an outside file | `(index_dir / MANIFEST_NAME).is_symlink()` rejected | index build | `test_manifest_symlink_is_rejected` | rejected, target unchanged |
+| A24 | Pre-planted temp file clobbered or followed (symlink race on the manifest write) | `O_CREAT \| O_EXCL \| O_NOFOLLOW` on the temp path | index write | `test_manifest_write_is_exclusive_and_atomic` | write fails, no manifest left behind |
+| A25 | Torn manifest after interruption | `fsync` then `os.replace` (atomic rename) | index write | `test_manifest_write_is_owner_only_and_leaves_no_temp` | no partial file remains |
+| A26 | World-readable manifest leaking corpus paths | manifest created `0o600`, index dir `0o700` | index write | `test_manifest_write_is_owner_only_and_leaves_no_temp` | owner-only |
+
+**A22–A26 were added on 2026-10-16 after fault injection showed the code had these
+defences but no test proved them**: disabling the `index_dir` symlink check, and
+downgrading the manifest write from `O_CREAT|O_EXCL|O_NOFOLLOW` to `O_TRUNC`, each
+left all 15 vector-index tests green. The five rows above now fail when the
+corresponding defence is removed — see
+[`fault-injection-experiments.md`](fault-injection-experiments.md) E4–E6.
 
 ## Side-effect posture
 

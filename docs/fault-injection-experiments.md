@@ -20,6 +20,9 @@ Method note: every suite in this project is deterministic and offline, so a
 | E1 | `Corpus.validate_answer` exact-text comparison | `risk-v1` suite | **caught** — `passed` True → False, 3 `fabricated-citation-*` flip to `answered` |
 | E2 | `Corpus._read_corpus_files` symlink rejection | `pytest` | **caught** — `test_rejects_symlink_and_non_text_file` fails |
 | E3 | Both fail-closed refusal layers | frozen `research-agent` suite | **caught** — `refusal_contract` 1.00 → 0.429, `passed` True → False |
+| E4 | `_prepare_index_dir` symlink rejection | `pytest` | **missed, then caught** — 15 tests stayed green; test added, now fails |
+| E5 | Manifest write `O_CREAT \| O_EXCL \| O_NOFOLLOW` → `O_TRUNC` | `pytest` | **missed, then caught** — as E4 |
+| E6 | Manifest mode `0o600` → `0o644` | `pytest` | **missed, then caught** — as E4 |
 
 Two of the three experiments also exposed **false greens in this project's own
 suites**. Those are recorded below because they are the more useful result: they
@@ -129,6 +132,37 @@ not by evidence overlap — a different mechanism, so a different break would be
 needed. That is the intended separation between the two suites.
 
 ---
+
+## E4–E6 — the index write surface had untested defences
+
+The offline lexical research path performs **no writes at all**; the only write
+surface in the project is the optional Hybrid RAG index build
+(`research/vector_index.py`). That code already defended itself:
+
+```python
+if index_dir.is_symlink():            raise RagIndexError("index_path_invalid")
+if (index_dir / MANIFEST_NAME).is_symlink(): raise RagIndexError("index_path_invalid")
+flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | O_NOFOLLOW
+os.open(temporary, flags, 0o600)
+os.fsync(...); os.replace(temporary, path)
+```
+
+Fault injection against it:
+
+```
+E4  disable index_dir symlink check        → 15 passed   (nothing noticed)
+E5  O_CREAT|O_EXCL|O_NOFOLLOW → O_TRUNC    → 15 passed   (nothing noticed)
+E6  0o600 → 0o644                          → 15 passed   (nothing noticed)
+```
+
+All three defences were real but **unproven**. Five tests were added
+(`test_index_dir_symlink_is_rejected`, `test_manifest_symlink_is_rejected`,
+`test_manifest_write_is_exclusive_and_atomic`,
+`test_manifest_write_is_owner_only_and_leaves_no_temp`), and the same three
+injections now each fail exactly one test.
+
+This is the same defect class as E1's first attempt, but in product code rather
+than in a suite: **a defence nobody tests is indistinguishable from no defence.**
 
 ## False greens found (the more important result)
 

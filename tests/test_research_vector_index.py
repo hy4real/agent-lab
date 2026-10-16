@@ -286,3 +286,66 @@ def test_qdrant_local_uses_explicit_thread_mode(
         "path": str(tmp_path),
         "force_disable_check_same_thread": True,
     }]
+
+
+def _manifest() -> IndexManifest:
+    return IndexManifest(
+        schema_version="v1",
+        index_version="probe",
+        corpus_hash="0" * 64,
+        chunk_hashes=("a" * 64, "b" * 64),
+        chunk_size=80,
+        overlap=10,
+        embedding_backend="synthetic",
+        embedding_backend_version="0",
+        embedding_model=EMBEDDING_MODEL,
+        embedding_probe_hash="c" * 64,
+        dimension=4,
+        distance="cosine",
+        point_count=2,
+        created_at="2026-10-16T00:00:00+00:00",
+    )
+
+
+def test_index_dir_symlink_is_rejected(tmp_path: Path) -> None:
+    """索引目录是符号链接时必须拒绝，避免写入被重定向到别处。"""
+    real = tmp_path / "real-index"
+    real.mkdir()
+    link = tmp_path / "index-link"
+    link.symlink_to(real, target_is_directory=True)
+    with pytest.raises(RagIndexError, match="^index_path_invalid$"):
+        vector_index._prepare_index_dir(link, rebuild=False)
+    assert not any(real.iterdir()), "被拒绝时不得留下任何写入"
+
+
+def test_manifest_symlink_is_rejected(tmp_path: Path) -> None:
+    """manifest 本身是符号链接时也必须拒绝。"""
+    index_dir = tmp_path / "index"
+    index_dir.mkdir()
+    target = tmp_path / "outside.json"
+    target.write_text("{}", encoding="utf-8")
+    (index_dir / MANIFEST_NAME).symlink_to(target)
+    with pytest.raises(RagIndexError, match="^index_path_invalid$"):
+        vector_index._prepare_index_dir(index_dir, rebuild=True)
+    assert target.read_text(encoding="utf-8") == "{}", "目标文件不得被改写"
+
+
+def test_manifest_write_is_exclusive_and_atomic(tmp_path: Path) -> None:
+    """临时文件必须以 O_EXCL|O_NOFOLLOW 创建：已存在则失败，且不留半成品。"""
+    manifest_path = tmp_path / MANIFEST_NAME
+    manifest = _manifest()
+    squatter = manifest_path.with_name(f".{manifest_path.name}.tmp")
+    squatter.write_text("occupied", encoding="utf-8")
+    with pytest.raises(RagIndexError, match="^index_manifest_write_failed$"):
+        vector_index._write_manifest(manifest_path, manifest)
+    assert squatter.read_text(encoding="utf-8") == "occupied", "不得覆盖已存在的临时文件"
+    assert not manifest_path.exists(), "失败时不得留下 manifest"
+
+
+def test_manifest_write_is_owner_only_and_leaves_no_temp(tmp_path: Path) -> None:
+    manifest_path = tmp_path / MANIFEST_NAME
+    manifest = _manifest()
+    vector_index._write_manifest(manifest_path, manifest)
+    assert manifest_path.exists()
+    assert (manifest_path.stat().st_mode & 0o777) == 0o600
+    assert not manifest_path.with_name(f".{manifest_path.name}.tmp").exists()
