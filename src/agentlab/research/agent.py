@@ -67,7 +67,7 @@ class ResearchAgent:
         tools: ToolRegistry | None = None,
         search: SearchProvider | None = None,
         retrieval_mode: str = "lexical",
-        index_version: str | None = None,
+        index_version:str | None = None,
         prompt_profile_id: str = BASELINE_PROFILE_ID,
         long_term: LongTermMemory | None = None,
         memory_scope: str | None = None,

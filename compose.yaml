@@ -1,0 +1,46 @@
+services:
+  api:
+    build: .
+    image: agent-lab:local
+    init: true
+    user: "10001:10001"
+    entrypoint: ["agentlab"]
+    command: ["serve", "--corpus", "/corpus", "--task-db", "/state/research.sqlite3", "--bind", "container", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./example/corpus:/corpus:ro
+      - task-state:/state
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  worker:
+    image: agent-lab:local
+    init: true
+    user: "10001:10001"
+    entrypoint: ["agentlab"]
+    command: ["research-worker", "--corpus", "/corpus", "--task-db", "/state/research.sqlite3"]
+    volumes:
+      - ./example/corpus:/corpus:ro
+      - task-state:/state
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  task-state:

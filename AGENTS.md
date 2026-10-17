@@ -28,6 +28,8 @@ agent-lab/
 │   ├── evaluation/real.py # 真实模型评测入口（仅用户显式授权时运行）
 │   ├── retrieval/       # 检索实验：lexical baseline、chunking、hybrid 评测
 │   ├── research/        # Research Agent：语料、工具、引用、运行编排和 fixture
+│   │   ├── tasks.py     # SQLite 持久研究任务、幂等提交与租约 CAS
+│   │   └── worker.py    # 独立离线 worker；复用 ResearchAgent
 │   ├── environment.py   # Agent 交互环境：工具+上下文+策略循环
 │   ├── llm.py           # 可选真实后端适配（live extra）
 │   ├── api.py           # 可选 loopback FastAPI 服务（serve extra）
@@ -45,6 +47,7 @@ agent-lab/
 ├── example/             # 完全虚构的示例输入
 ├── scripts/             # 打包内容审计等开发入口，不承载业务逻辑
 ├── Dockerfile           # 非 root、本地使用的可选服务镜像
+├── compose.yaml         # 本地 API/worker 编排；共享专用 named volume
 ├── README.md
 └── AGENTS.md            # 本文件
 ```
@@ -57,14 +60,13 @@ agent-lab/
 
 ## 测试与验证
 
-**推送前必须跑完下列全部 7 项**；少跑一项即视为本轮未验证（打包审计 `check_package_contents.py` 是 fail-closed 白名单，新增文件不登记就会在 CI 才暴露）。
-
 ```bash
 .venv/bin/pytest --cov=agentlab --cov-report=term-missing --cov-fail-under=90
 .venv/bin/python -m compileall -q src tests
 .venv/bin/ruff check src tests scripts
 .venv/bin/mypy src
 .venv/bin/python -m build
+# 以及 python scripts/check_package_contents.py dist 与 agentlab --help
 .venv/bin/python scripts/check_package_contents.py dist
 .venv/bin/agentlab --help
 git diff --check
@@ -76,9 +78,8 @@ git diff --check
 - Research Agent fixture suite 固定 30 case；修改 case、Gold 或阈值必须提升 suite version
 - Hybrid RAG suite v2 固定 13 case、语料 digest 和阈值；修改 case、Gold、语料或阈值必须提升 suite version
 - RAGChecker paper suite v1 固定 case、claim/chunk ID、oracle entailment label、语料 digest 和期望指标；修改任一项必须提升 suite version
+- Local Claim Evaluation suite 只存在于用户显式选择的私有目录；冻结 suite 至少 24 个 query，必须绑定 corpus、cases、chunk set hash，并保持 calibration/holdout 与人工裁决状态可验证。冻结必须覆盖 single-document、multi-document、数字/时间、否定、无答案和双语改写；只有 corpus 确实含同一对象、同一时间/条件下互不相容的陈述时才加入 conflict，不得把带日期的历史状态演进伪造为冲突
 - Controlled Memory suite v1 固定公开合成 record、case、threshold 与 canonical report；修改 record、case、threshold、tokenizer 或 expected result 必须提升 suite version
-- External suite v1 固定语料 digest、case、阈值与 canonical report；修改任一项或更换数据集必须提升 suite version
-- Risk suite v1 固定六类 case、动作断言、阈值与 canonical report；修改 case、注入语料、阈值或期望结果必须提升 suite version
 - Citation validity、无支持事实率和拒答契约属于 100% 确定性门槛，不得用平均分掩盖单 case 失败
 
 ## 约束
@@ -88,7 +89,12 @@ git diff --check
 - 不声称模型能力、并发能力、生产可用性或外部结果有效
 - 短期记忆不包含长期持久化；长期记忆的 term-overlap 检索仍是 baseline，不表述为语义 RAG。可选 Hybrid RAG 只属于 Research Agent 路径；改动范围前先更新本文档与设计文档
 - 推理策略对比只表述结构指标（步骤/工具调用/重规划），不表述模型推理质量；真实模型评测需另行授权
-- 弹性组件为单进程语义；压测耗时仅诊断、明确标注"不作为实时并发能力结论"；不表述生产可用性
+- 既有 resilience 弹性组件为单进程语义；新的 SQLite research tasks 仅支持同机、本地文件系统上的多进程领取与恢复。压测耗时仅诊断，不表述生产可用性或生产容量
+- 持久研究任务按 `docs/persistent-research-tasks.md` 实现：提交参数先持久化；request key 唯一且绑定完整参数、语料指纹与执行器版本；同键异参拒绝。领取、续租和写回使用短事务，Agent 执行在事务外；旧 attempt 或已过期租约不能续租或写回
+- 新任务表仅用于默认离线、只读 ResearchAgent；允许崩溃后重复计算，不承诺外部副作用 exactly-once。持久任务数据库目录必须为当前用户私有，正文与结果不进入日志、git 或包；schema 不兼容时拒绝打开，不自动迁移旧状态
+- `/v1/research/tasks` 及其子路径必须沿用本地 Host、Origin 和 session token 校验；任务数据库路径仅由启动参数指定，客户端不得提交路径。新 worker/API 不读取真实 `.agentlab` 状态用于测试
+- 持久任务第二阶段按 `docs/backend-engineering-plan.md` 推进：提交起 300 秒总 deadline，pending/running 合计最多 100；同键重放不消耗容量。取消与超时分别表示为 failed/cancelled 和 failed/deadline_exceeded，保持 schema v1；执行放在可回收的 spawn 子进程中，续租不能延长总 deadline
+- 部署与诊断按 `docs/local-backend-operations.md`：API/worker 共享专用本地 SQLite volume，保持非 root。`GET /v1/research/task-metrics` 需要相同 Host/Origin/token 校验；只返回状态/错误计数、积压年龄和租约过期数，不把数据库可读误称为 worker 存活。任务事件只允许系统生成的 task_id、attempt、稳定状态/错误码和耗时；用户输入、request_key、worker_id、路径、结果与凭据不得进入结构化日志
 - 评测指标为确定性离线 baseline（expected-result 匹配），不表述模型质量；转化指标是任务完成率代理，明确标注边界
 - 检索实验默认只用合成语料；不得读取未明确授权的私有语料。Hybrid RAG 的向量索引必须是显式构建、可验证 stale 的本地索引，不把测试注入的确定性向量当作真实 embedding 能力
 - 真实模型评测（`evaluation/real.py`）仅在用户显式授权时运行：只发合成任务与工具结果，无私人数据；单次结果不表述模型能力
@@ -107,17 +113,10 @@ git diff --check
 - Live Provider 依赖只放在 `live` extra；Trace 只允许记录 lifecycle、tool name、status、finish reason、脱敏 usage 和 duration。Provider usage 必须按单次 run 记录 measured delta，不得与本地 estimate 混为同一语义；不得记录 prompt、语料原文、问题原文、绝对路径、密钥或底层异常正文
 - FastAPI 本地进程只绑定 `127.0.0.1`；`POST /v1/research` 必须校验 loopback Host、可选 Origin 与启动时随机 session token。容器内 `0.0.0.0` 只能由 Docker ENTRYPOINT 的显式 bind 参数开启，Docker 运行示例必须只发布到宿主 `127.0.0.1`。服务启动时固定 corpus root，请求不得提交任意本地路径
 - `evals/research-agent/` 只能包含 Agent Lab 自身公开设计文档的冻结副本或完全合成的对抗语料，不得包含私人文件、受限资料或真实用户数据
-- `evals/external-v1/` 是**外部来源** suite：语料与问题必须来自公开数据集或公开文档，并在 `suite.json` 的 `provenance` 中逐项记录数据集名、版本、URL、许可与抓取时间，同时锁定内容 SHA-256。不得包含私人文件、受限资料、真实用户数据，或需要登录/付费才能获取的内容。抓取与转换只能经 `scripts/` 下的显式脚本完成，脚本必须离线可复算且失败即退出
-- `evals/risk-v1/` 是**工具使用安全** suite（回归门槛，必须全绿）：case 覆盖越权工具调用（未注册工具、`chunk_id` 路径穿越、畸形参数、输出越界）与语料内提示注入，且**每个 case 都必须带 `expected_side_effects: 0`**，对抗类 case 另带 `forbid_tools`。注入语料必须完全合成或来自公开来源，并在 `evals/risk-v1/PROVENANCE.md` 逐条记录
-- 风险类别**只在能验证它的那一层测**，不为了凑分类重复造：符号链接拒绝与 TOCTOU 发生在 corpus 加载期（`tests/test_research_corpus.py`），长期记忆的 CAS 与并发写在 `tests/test_longterm.py`，信息冲突与证据不足的"易类"在冻结 suite。**每个类别的覆盖位置必须在 `docs/isolation-attack-matrix.md` 中逐条标注**，该矩阵是这一类问题的单一入口
-- `privilege_escalation_blocked`、`symlink_rejected`、`refusal_correctness` 属于 **100% 确定性门槛**，与 Citation validity 同级，不得用平均分掩盖单 case 失败
-- 评测 case 的动作级断言为可选字段 `forbid_tools`（本次运行禁止出现的工具名）与 `expected_side_effects`（允许的副作用次数），缺省表示不约束；文本级 `expected_result` 与状态级 `expected_status` 语义不变
-- `ToolSpec` 必须显式声明 `side_effect`（`none` / `read` / `write`）与 `max_output_bytes`。`ToolRegistry.call()` 必须强制 `max_output_bytes`，越界抛 `ToolError("output_too_large")` 并记 event。评测 runner 以**声明为 `write` 的调用次数**作为副作用计数，与 case 的 `expected_side_effects` 比对，超出即该 case 失败
-- 声明与实现不符（声明 `none` 却产生副作用）**无法由 registry 自动侦测**，只能靠 handler 走受控接口 + 单测覆盖；任何新增 `write` 工具必须同时提交一条验证其副作用的单测。`side_effect` 描述的是**工具**。**`--live` 的 Provider 路径不是工具**，它由 `live` extra 与显式 `--live` 开关约束，不经 ToolRegistry，因此当前不引入 `network` 副作用类型
-- **不得再写「网络调用面不存在」**：`llm.py` 会真实调用 OpenAI-compatible Provider（见上文 `--live` 条款），这条路径**没有机制层的出口控制**，只有「用户显式加 `--live`」这一约定。新增**任何会出网的工具**时，同批必须引入 `network` 副作用类型、出口域名白名单，并同步更新 `docs/isolation-attack-matrix.md`
-- **工具路径权限必须声明式**：`ToolSpec.path_scope` 可选，取值 `None`（不碰文件系统）或 `PathScope(mode, roots, deny_globs)`。`mode` 三档：`allow`（root 内放行）、`deny`（一律拒绝）、`interrupt`（返回 `approval_required`，**不得自动放行**）。`ToolRegistry.call()` 必须在调用 handler 前校验，越界抛 `ToolError("path_outside_scope")` 并记 event
-- **路径解析只走 `Workspace.resolve()`**：拒绝绝对路径、`..` 段、任一段符号链接、非普通文件、逃出 root；解析结果必须 `is_relative_to(root)`。禁止任何工具自行 `open(path)`。写操作必须 `O_CREAT|O_EXCL|O_NOFOLLOW` 加显式覆盖开关
 - `evals/paper-ragchecker-v1/` 只能包含完全合成语料、人工冻结的 oracle entailment label 和确定性运行结果；它不调用 claim extractor、entailment model、Provider 或网络，不得表述为完整 RAGChecker 复现、论文结论验证或模型质量评测
+- v1.4 Local Claim Evaluation Pilot 不修改 `evals/paper-ragchecker-v1/`。真实但公开或已授权的 corpus、query、Gold、标注备注和后续模型输出只能位于显式选择的私有 suite root，目录/文件分别为 `0700/0600`、不可包含符号链接、不得进入 git、sdist、wheel、日志或公共错误；manifest 必须记录脱敏 source snapshot 边界，校验报告只能包含 ID、来源类型、脱敏 snapshot 说明、计数、类别、split 与 hash
+- v1.4 人工 Gold 的每条 claim 必须是原子事实，并引用规范化 source 文本中的精确 `start/end/exact_text`；程序验证 span 与确定性 chunk 可容纳性，但不把结构校验或 Agent 的源码/运行事实核验误称为独立人工复核。`unclear` 只能停留在 draft，frozen suite 必须全部 adjudicated
+- v1.4 默认只做本地 schema/Gold 校验，不调用 Provider、claim extractor 或 entailment checker。后续自动组件必须分别对 extractor 与四个方向的 entailment pair 做 calibration/holdout 误差评测，经用户单独授权费用和数据外发后才能运行
 - RAGChecker 指标输入必须显式携带唯一的 ground-truth claim、response claim 和 retrieved chunk ID，并严格验证四个方向性矩阵的形状与 bool 类型；退化输入行为固定匹配所引用的官方实现版本
 - RAGChecker paper-to-code 只有在冻结评测和维护者本人方法答辩均完成后才能进入公开项目材料；答辩前只能标记为工程实现完成，不得据此声称已具备论文理解能力
 - Public-safe case study 只能引用仓库内可复核的代码、测试、冻结评测或构建产物；必须明确能力边界，不得写入真实用户、私人资料，也不得声称模型质量、真实并发、生产规模、用户规模或外部结果
@@ -125,4 +124,15 @@ git diff --check
 - 本阶段明确不实现 MCP、多 Agent、Kubernetes、远端多租户、生产 SLA 或自动长期事实记忆；新增这些能力必须重新出计划并批准
 - v1.2 Hybrid RAG 的本地 embedding、Qdrant 索引、RRF、主链路 provenance、版本化 grounded prompt、suite v2 与 public-safe canonical report 已完成离线验收。suite v2 只证明冻结合成语料上的检索与确定性 Agent 契约，不证明 Provider 生成质量、真实用户价值或生产规模
 - v1.3 已完成 RAGChecker claim-level 指标计算层、6 个矩阵案例、3 个真实 ResearchAgent 合成运行和可重算 canonical report；这只证明 oracle-label 指标复现，维护者本人方法答辩完成前不得写成已关闭论文理解 Gap
+- v1.4 第一阶段已完成私有 Local Claim Evaluation suite 的严格 schema、权限/hash/span/freeze validator 与脱敏 CLI 报告；当前公开文档 pilot 已按现有源码、fixture 和本地运行结果完成事实校正，仍是 `needs_review` 的 draft，人工独立复核前不得标记 frozen 或称为人工 Gold
+- **推送前必须跑完下列全部 7 项**；少跑一项即视为本轮未验证（打包审计 `check_package_contents.py` 是 fail-closed 白名单，新增文件不登记就会在 CI 才暴露）
+- `evals/external-v1/` 是**外部来源** suite：语料与问题必须来自公开数据集或公开文档，并在 `suite.json` 的 `provenance` 中逐项记录数据集名、版本、URL、许可与抓取时间，同时锁定内容 SHA-256。不得包含私人文件、受限资料、真实用户数据，或需要登录/付费才能获取的内容。抓取与转换只能经 `scripts/` 下的显式脚本完成，脚本必须离线可复算且失败即退出
+- `evals/risk-v1/` 是**工具使用安全** suite（回归门槛，必须全绿）：case 覆盖越权工具调用（未注册工具、`chunk_id` 路径穿越、畸形参数、输出越界）与语料内提示注入，且**每个 case 都必须带 `expected_side_effects: 0`**，对抗类 case 另带 `forbid_tools`。注入语料必须完全合成或来自公开来源，并在 `evals/risk-v1/PROVENANCE.md` 逐条记录
+- 风险类别**只在能验证它的那一层测**，不为了凑分类重复造。**每个类别的覆盖位置必须在 `docs/isolation-attack-matrix.md` 中逐条标注**，该矩阵是这一类问题的单一入口
+- `citation_validity`、`forbidden_tool_calls`、`refusal_contract` 属于 **100% 确定性门槛**，不得用平均分掩盖单 case 失败
+- 评测 case 的动作级断言为可选字段 `forbid_tools`（本次运行禁止出现的工具名）与 `expected_side_effects`（允许的副作用次数），缺省表示不约束
+- `ToolSpec` 必须显式声明 `side_effect`（`none` / `read` / `write`）与 `max_output_bytes`，运行期强制。评测 runner 以**声明为 `write` 的调用次数**作为副作用计数，与 `expected_side_effects` 比对
+- 声明与实现不符（声明 `none` 却产生副作用）**无法由 registry 自动侦测**，只能靠 handler 走受控接口 + 单测覆盖。**不得写「网络调用面不存在」**：`llm.py` 会真实调用 Provider，该路径无机制层出口控制；新增任何出网工具时同批必须引入 `network` 副作用类型、出口白名单并更新攻击矩阵
+- **工具路径权限必须声明式**：`ToolSpec.path_scope` 取值 `None` 或 `PathScope(mode, roots, deny_globs)`，三档 `allow` / `deny` / `interrupt`，`interrupt` **不得自动放行**。`ToolRegistry.call()` 必须在 handler 之前校验
+- **路径解析只走 `Workspace.resolve()`**：拒绝绝对路径、`..` 段、任一段符号链接、非普通文件、逃出 root。禁止任何工具自行 `open(path)`。写操作必须 `O_CREAT|O_EXCL|O_NOFOLLOW` 加显式覆盖开关
 - 大改动前先在 Plan Mode 出方案，确认后再动手

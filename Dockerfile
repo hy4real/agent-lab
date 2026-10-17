@@ -8,7 +8,8 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 RUN pip install --no-cache-dir ".[serve]" \
     && addgroup --system --gid 10001 agentlab \
-    && adduser --system --uid 10001 --ingroup agentlab agentlab
+    && adduser --system --uid 10001 --ingroup agentlab agentlab \
+    && install -d -m 0700 -o 10001 -g 10001 /state
 
 USER 10001:10001
 EXPOSE 8000

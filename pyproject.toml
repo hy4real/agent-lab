@@ -43,6 +43,7 @@ include = [
   "/AGENTS.md",
   "/CONTRIBUTING.md",
   "/Dockerfile",
+  "/compose.yaml",
   "/LICENSE",
   "/README.md",
   "/SECURITY.md",

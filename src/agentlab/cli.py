@@ -5,7 +5,10 @@ from __future__ import annotations
 import argparse
 import json
 import secrets
+import signal
 import sys
+import time
+import uuid
 from pathlib import Path
 from typing import Sequence
 
@@ -16,6 +19,10 @@ from .research.corpus import Corpus, CorpusError
 from .research.evaluation import EvaluationError, run_frozen_evaluation
 from .research.suite_runner import run_declarative_suite
 from .research.live import LiveResearchReasoner
+from .research.local_claim_evaluation import (
+    LocalClaimEvaluationError,
+    validate_local_claim_suite,
+)
 from .research.prompt_profiles import (
     BASELINE_PROFILE_ID,
     GROUNDED_HYBRID_PROFILE_ID,
@@ -27,6 +34,8 @@ from .research.rag_evaluation import (
     run_rag_evaluation,
 )
 from .research.retrieval import HybridRetriever
+from .research.tasks import ResearchTaskStore
+from .research.worker import ResearchWorker
 from .research.vector_index import (
     FastEmbedProvider,
     QdrantVectorSearch,
@@ -76,6 +85,12 @@ def _parser() -> argparse.ArgumentParser:
     suite_eval.add_argument("--suite-root", required=True, type=Path)
     suite_eval.add_argument("--report", type=Path, default=None, help="optionally write the canonical report here")
 
+    claim_suite = subparsers.add_parser(
+        "claim-suite-validate",
+        help="validate a private claim suite with explicit review state without Provider calls",
+    )
+    claim_suite.add_argument("--suite-root", required=True, type=Path)
+
     memory = subparsers.add_parser("memory", help="manage controlled local long-term memory")
     memory_actions = memory.add_subparsers(dest="memory_action", required=True)
     memory_propose = memory_actions.add_parser("propose", help="create an inactive memory candidate from stdin")
@@ -114,6 +129,14 @@ def _parser() -> argparse.ArgumentParser:
     serve.add_argument("--corpus", required=True, type=Path)
     serve.add_argument("--port", type=int, default=8000)
     serve.add_argument("--bind", choices=("loopback", "container"), default="loopback")
+    serve.add_argument("--task-db", type=Path, help="enable persistent task API using a private SQLite path")
+
+    worker = subparsers.add_parser("research-worker", help="process persistent offline research tasks")
+    worker.add_argument("--corpus", required=True, type=Path)
+    worker.add_argument("--task-db", required=True, type=Path)
+    worker.add_argument("--worker-id", default=None)
+    worker.add_argument("--lease-seconds", type=float, default=30.0)
+    worker.add_argument("--once", action="store_true", help="attempt at most one task and exit")
     return parser
 
 
@@ -223,6 +246,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             _write_json(suite_payload)
             return 0
+        if args.command == "claim-suite-validate":
+            _write_json(validate_local_claim_suite(args.suite_root).to_dict())
+            return 0
         if args.command == "memory":
             memory_store = LongTermMemory(state_path=args.state)
             if args.memory_action == "propose":
@@ -267,6 +293,26 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.memory_action == "import-legacy":
                 _write_json(memory_store.import_legacy(scope=args.scope, apply=args.apply).to_dict())
                 return 0
+        if args.command == "research-worker":
+            corpus = Corpus.load(args.corpus)
+            worker = ResearchWorker(
+                ResearchTaskStore(args.task_db), corpus,
+                worker_id=args.worker_id or f"worker-{uuid.uuid4().hex}",
+                lease_seconds=args.lease_seconds,
+            )
+            previous_handler = signal.signal(signal.SIGTERM, _interrupt_worker)
+            try:
+                while True:
+                    outcome = worker.run_once()
+                    if args.once or outcome.status != "idle":
+                        _write_json(outcome.to_dict())
+                        sys.stdout.flush()
+                    if args.once:
+                        return 0 if outcome.status in {"succeeded", "idle"} else 1
+                    if outcome.status == "idle":
+                        time.sleep(0.25)
+            finally:
+                signal.signal(signal.SIGTERM, previous_handler)
         if args.command == "serve":
             if args.port < 1 or args.port > 65535:
                 raise ValueError("port 必须在 1..65535")
@@ -279,11 +325,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             token = secrets.token_urlsafe(32)
             print(f"session token: {token}", file=sys.stderr)
             host = "0.0.0.0" if args.bind == "container" else "127.0.0.1"
-            uvicorn.run(create_app(args.corpus, session_token=token), host=host, port=args.port)
+            uvicorn.run(
+                create_app(args.corpus, session_token=token, task_db=args.task_db),
+                host=host, port=args.port, access_log=False,
+            )
             return 0
+    except KeyboardInterrupt:
+        return 130
     except (
         CorpusError,
         EvaluationError,
+        LocalClaimEvaluationError,
         LongTermMemoryError,
         RagEvaluationError,
         RagIndexError,
@@ -297,6 +349,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _write_json(value: object) -> None:
     print(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+
+def _interrupt_worker(_signum, _frame) -> None:
+    raise KeyboardInterrupt
 
 
 def _add_memory_state_arguments(parser: argparse.ArgumentParser) -> None:

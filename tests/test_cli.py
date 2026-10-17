@@ -10,6 +10,8 @@ from types import SimpleNamespace
 
 import agentlab.cli as cli
 from agentlab.cli import main
+from agentlab.research.corpus import Corpus
+from agentlab.research.tasks import ResearchTaskStore
 
 
 def test_research_demo_is_byte_deterministic(capsys) -> None:
@@ -23,6 +25,45 @@ def test_research_demo_is_byte_deterministic(capsys) -> None:
     assert answer["status"] == "answered"
     assert len(answer["claims"]) == 1
     assert "checks every citation" in answer["answer"]
+
+
+def test_worker_cli_processes_saved_request_and_reports_idle(tmp_path: Path, capsys) -> None:
+    root = tmp_path / "corpus"
+    root.mkdir()
+    (root / "fact.md").write_text("The Helix fixture status is ready.", encoding="utf-8")
+    path = tmp_path / "state" / "tasks.sqlite3"
+    store = ResearchTaskStore(path)
+    task, _ = store.submit("req", "What is the Helix fixture status?", Corpus.load(root).content_hash)
+    args = ["research-worker", "--corpus", str(root), "--task-db", str(path), "--once"]
+    assert main(args) == 0
+    output = capsys.readouterr()
+    events = [json.loads(line) for line in output.err.splitlines()]
+    assert [event["event"] for event in events] == ["worker_claimed", "worker_finished"]
+    assert all(event["task_id"] == task.id for event in events)
+    assert json.loads(output.out) == {"task_id": task.id, "status": "succeeded", "attempt": 1}
+    assert main(args) == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "idle"
+    assert main(args + ["--lease-seconds", "0"]) == 2
+    output = capsys.readouterr()
+    assert output.out == "" and output.err == "error: agentlab_command_failed\n"
+
+
+def test_worker_cli_failed_task_and_interrupt(tmp_path: Path, monkeypatch, capsys) -> None:
+    root = tmp_path / "corpus"
+    root.mkdir()
+    (root / "fact.md").write_text("Synthetic corpus.", encoding="utf-8")
+    path = tmp_path / "state" / "tasks.sqlite3"
+    ResearchTaskStore(path).submit("req", "question", "a" * 64)
+    args = ["research-worker", "--corpus", str(root), "--task-db", str(path)]
+    assert main(args + ["--once"]) == 1
+    assert json.loads(capsys.readouterr().out)["status"] == "failed"
+
+    def interrupt(seconds):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(cli.time, "sleep", interrupt)
+    assert main(args) == 130
+    assert capsys.readouterr().out == ""
 
 
 def test_research_defaults_to_offline(tmp_path: Path, capsys) -> None:
@@ -40,6 +81,40 @@ def test_cli_errors_are_stable_and_do_not_echo_path(tmp_path: Path, capsys) -> N
     assert captured.out == ""
     assert captured.err == "error: agentlab_command_failed\n"
     assert str(secret_path) not in captured.err
+
+
+def test_research_eval_stdout_is_json(capsys) -> None:
+    root = Path(__file__).parents[1] / "evals" / "research-agent"
+    assert main(["research-eval", "--suite-root", str(root)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert json.loads(captured.out)["passed"] is True
+
+
+def test_claim_suite_validation_is_redacted_json(tmp_path: Path, monkeypatch, capsys) -> None:
+    report = SimpleNamespace(
+        to_dict=lambda: {
+            "suite_id": "private-suite",
+            "case_count": 24,
+            "frozen_ready": True,
+        }
+    )
+    monkeypatch.setattr(cli, "validate_local_claim_suite", lambda root: report)
+    private_root = tmp_path / "private-marker"
+    assert main(["claim-suite-validate", "--suite-root", str(private_root)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert json.loads(captured.out)["frozen_ready"] is True
+    assert str(private_root) not in captured.out
+
+
+def test_claim_suite_validation_error_is_stable(tmp_path: Path, capsys) -> None:
+    private_root = tmp_path / "private-marker"
+    assert main(["claim-suite-validate", "--suite-root", str(private_root)]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == "error: agentlab_command_failed\n"
+    assert str(private_root) not in captured.err
 
 
 def test_memory_cli_lifecycle_is_explicit_and_redacted(
@@ -155,14 +230,6 @@ def test_memory_cli_errors_do_not_echo_state_or_stdin(
     assert captured.err == "error: agentlab_command_failed\n"
     assert str(state) not in captured.err
     assert secret not in captured.err
-
-
-def test_research_eval_stdout_is_json(capsys) -> None:
-    root = Path(__file__).parents[1] / "evals" / "research-agent"
-    assert main(["research-eval", "--suite-root", str(root)]) == 0
-    captured = capsys.readouterr()
-    assert captured.err == ""
-    assert json.loads(captured.out)["passed"] is True
 
 
 def test_research_index_build_uses_explicit_optional_backend(
@@ -349,13 +416,13 @@ def test_live_provider_failure_is_stable(tmp_path: Path, monkeypatch, capsys) ->
 def test_serve_uses_explicit_loopback_or_container_host(tmp_path: Path, monkeypatch, capsys) -> None:
     (tmp_path / "fact.md").write_text("The server fixture is local.", encoding="utf-8")
     calls = []
-    monkeypatch.setattr("uvicorn.run", lambda app, *, host, port: calls.append((app, host, port)))
+    monkeypatch.setattr("uvicorn.run", lambda app, *, host, port, access_log: calls.append((app, host, port, access_log)))
     assert main(["serve", "--corpus", str(tmp_path), "--port", "8123"]) == 0
-    assert calls[-1][1:] == ("127.0.0.1", 8123)
+    assert calls[-1][1:] == ("127.0.0.1", 8123, False)
     assert main([
         "serve", "--corpus", str(tmp_path), "--port", "8124", "--bind", "container"
     ]) == 0
-    assert calls[-1][1:] == ("0.0.0.0", 8124)
+    assert calls[-1][1:] == ("0.0.0.0", 8124, False)
     assert capsys.readouterr().err.count("session token:") == 2
 
 

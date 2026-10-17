@@ -4,7 +4,7 @@ Provider 无关、无框架的本地 Evidence Research Agent。它把短期/长�
 
 ## 项目状态
 
-当前版本是公开发布的脱敏快照，默认路径完全离线。代码、fixture、测试、Demo 和构建审计均可在本仓库内复核；不声明真实用户、生产部署、社区采用或外部影响力。
+项目已有公开维护的脱敏快照，默认路径完全离线。代码、fixture、测试、Demo 和构建审计均可在本仓库内复核；不声明真实用户、生产部署、社区采用或外部影响力。
 
 公开仓库：https://github.com/hy4real/agent-lab
 
@@ -68,8 +68,47 @@ docker build -t agent-lab:local .
 docker run --rm -v "$PWD/example/corpus:/corpus:ro" -p 127.0.0.1:8000:8000 agent-lab:local
 ```
 
-API 仅提供 `GET /health` 和 `POST /v1/research`。本地服务只监听 `127.0.0.1`；请求只能提交 question，不能指定本地路径。
+默认 API 提供 `GET /health` 和 `POST /v1/research`。本地服务只监听 `127.0.0.1`；请求只能提交 question，不能指定本地路径。
 启动命令会在 stderr 输出本次会话 token；调用 `POST /v1/research` 时通过 `X-AgentLab-Token` header 提交。Host 与浏览器 Origin 也必须指向 loopback。
+
+### 持久研究任务
+
+本地双服务部署可运行 `docker compose up --build -d`，使用只读示例语料与专用持久卷；API 只发布到 `127.0.0.1:8000`，API/worker 均为非 root。`docker compose stop` 保留数据。部署、凭证获取和排障见 [本地后端运行说明](docs/local-backend-operations.md)。
+
+显式启用 SQLite 任务接口，再在另一个终端运行 worker。两者使用同一数据库和相同语料；新建状态目录为 0700，数据库为 0600。已有目录若权限过宽会拒绝打开，不会自动修改目录权限。
+
+```bash
+.venv/bin/agentlab serve --corpus ./example/corpus \
+  --task-db .agentlab/tasks/research.sqlite3 --port 8000
+
+# 在另一个终端持续处理任务；加 --once 可只尝试领取一次
+.venv/bin/agentlab research-worker --corpus ./example/corpus \
+  --task-db .agentlab/tasks/research.sqlite3 --worker-id worker-a
+```
+
+调用方将启动时收到的会话 token 放入 `X-AgentLab-Token` header：
+
+```http
+POST /v1/research/tasks
+Content-Type: application/json
+X-AgentLab-Token: <当前会话 token>
+
+{"request_key":"research-example-1","question":"Agent Lab 如何校验引用？"}
+```
+
+新请求返回 `202`、任务 `id` 和查询地址 `Location`；携带同一 token 请求 `GET /v1/research/tasks/{id}` 可查看 pending/running/succeeded/failed 和最终 result。相同 request_key 与参数再次提交返回 `200` 和已有任务；同键不同参数为 `409`。新业务请求使用新键，网络重试保留原键。API 重启后需要新会话 token，但数据库中的任务和结果保留。
+
+任务参数、语料指纹和执行器版本先提交，再由 worker 调用已有离线 ResearchAgent。worker 默认每 10 秒续租，租约 30 秒；失联到期后可由另一个进程接管，attempt 递增，旧 worker 的结果不能覆盖新执行。任务最多领取 3 次；异常返回稳定 error_code，语料变化拒绝执行。正常的证据不足拒答属于研究结果，不等于基础设施执行失败。
+
+任务从提交起共享 300 秒总预算，排队和重试都计入，续租不延长 deadline。到期返回 `failed` / `deadline_exceeded`。每个 worker 在独立子进程中执行研究，监督循环发现超时、取消或失去租约后回收子进程；父 worker 异常退出时，子进程的看门狗也会检查父进程并退出。
+
+携带会话 token 调用 `POST /v1/research/tasks/{id}/cancel` 可取消 pending/running 任务，返回 `failed` / `cancelled`；重复取消返回原终态，已成功的结果不会被取消覆盖。取消响应表示数据库已拒绝后续结果写回，实际计算由监督循环随后停止；默认轮询间隔至多 0.1 秒，锁竞争和进程回收可能增加延迟。
+
+持久任务最多接纳 100 个 pending/running 任务，满额返回 `429 task_capacity_exceeded` 和 `Retry-After: 1`。同键重放仍可查询原任务，取消、完成或过期释放名额。此限制只针对持久任务入口；同步 `/v1/research` 没有因此获得容量控制。
+
+携带相同 token 请求 `GET /v1/research/task-metrics` 可查看状态/错误计数、容量、积压年龄及过期租约；它只证明数据库可读，不代表 worker 存活。提交、领取、执行结束产生脱敏 JSON 事件，使用 task_id/attempt 关联；问题、请求键、结果和路径不进入事件。worker 收到 SIGTERM 时回收执行子进程，未完成任务保留给后续租约接管。
+
+该路径仅支持同机本地 SQLite 和只读离线工具，崩溃可能导致重复计算；不保证外部写入动作 exactly-once，不证明生产吞吐。完整事务、错误和故障验收说明见 [持久研究任务设计](docs/persistent-research-tasks.md)，后续阶段见 [后端工程计划](docs/backend-engineering-plan.md)。第二阶段保留 schema v1，但必须同时升级 API 和全部 worker；旧版本不具备这些执行限制。历史终态结果不会自动清理。
 
 ## 离线评测
 
@@ -99,6 +138,21 @@ RAGChecker paper-to-code 实验使用独立的 oracle-label suite：
 ```
 
 该实验复现论文的 claim-level 指标计算层，并让三个真实 `ResearchAgent` 合成运行分别呈现 clean context、irrelevant noise 与 retrieval miss。它不包含 claim extractor、entailment model 或论文 benchmark，不能表述为完整 RAGChecker 复现或模型质量评测。
+
+### Local Claim Evaluation Pilot
+
+`claim-suite-validate` 校验用户显式选择、带明确人工复核状态的私有 claim suite，不调用 Provider，也不把真实语料写入仓库或发行包：
+
+```bash
+chmod 700 ~/.agentlab/evals/<suite-id> ~/.agentlab/evals/<suite-id>/corpus
+chmod 600 ~/.agentlab/evals/<suite-id>/manifest-v1.json \
+  ~/.agentlab/evals/<suite-id>/cases-v1.json \
+  ~/.agentlab/evals/<suite-id>/corpus/*
+.venv/bin/agentlab claim-suite-validate \
+  --suite-root ~/.agentlab/evals/<suite-id>
+```
+
+manifest、人工 claim/span 标注规则、draft/frozen 门槛和隐私边界见 `docs/v1.4-local-claim-evaluation-pilot.md`。结构校验通过只说明 suite 可复算，不说明 Gold 语义正确或自动评测可靠。
 
 ### Tool-use safety suite (risk-v1)
 
@@ -177,11 +231,17 @@ zero-evidence inputs; the near-miss case is a recorded open gap.
 - v0.9-v1.1：Evidence Research Agent（`docs/v0.9-v1.1-research-agent-plan.md`）
 - v1.2：Hybrid RAG、Qdrant local index 与 grounded prompt（`docs/v1.2-hybrid-rag-plan.md`）
 - v1.3：RAGChecker claim-level 指标层复现（`docs/v1.3-ragchecker-paper-to-code-plan.md`）
+- v1.4：真实语料的本地 claim 基准草稿与严格 validator（`docs/v1.4-local-claim-evaluation-pilot.md`）
 - v1.5：受控长期记忆、scope/预算/并发契约与冻结评测（`docs/v1.5-controlled-memory-plan.md`）
+- 后端第一阶段：SQLite 研究任务、独立 worker、租约和崩溃恢复（`docs/persistent-research-tasks.md`）
+- 后端第二阶段：总 deadline、取消、进程回收与容量限制（`docs/backend-engineering-plan.md`）
+- 后端第三阶段：双服务部署、受保护的状态指标与脱敏事件（`docs/local-backend-operations.md`）
 - Case study：Evidence Research Agent 工程实现与验证（`docs/evidence-research-agent-case-study.md`）
 - RAG report：冻结合成评测与边界（`docs/rag-evaluation-report.md`）
 - Paper-to-code report：RAGChecker 方法映射、实验结果与边界（`docs/ragchecker-paper-to-code-report.md`）
 - 可选真实模型评测：`docs/real-model-eval-report.md`（需显式授权）
+
+本项目只陈述可核验的工程事实，不表述模型能力、生产结果或外部采用。
 
 ## 验证与边界
 
