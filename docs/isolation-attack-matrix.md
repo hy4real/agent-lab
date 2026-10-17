@@ -4,7 +4,7 @@ Single entry point for "what can an attacker try, what stops it, and where is th
 verified". Every row names the layer that actually enforces the defence, because a
 defence tested at the wrong layer is not tested.
 
-26 rows. Scope: the offline research path, plus the one write surface (optional Hybrid RAG index build). The project is local, offline and single-user by
+33 rows. Scope: the offline research path, plus the one write surface (optional Hybrid RAG index build). The project is local, offline and single-user by
 design; there is no network surface (pytest runs with `--disable-socket`) and no
 remote multi-tenancy (`AGENTS.md` excludes it). Rows below are therefore about
 **containing the corpus and the tool layer**, not about network egress or tenants.
@@ -49,6 +49,25 @@ downgrading the manifest write from `O_CREAT|O_EXCL|O_NOFOLLOW` to `O_TRUNC`, ea
 left all 15 vector-index tests green. The five rows above now fail when the
 corresponding defence is removed — see
 [`fault-injection-experiments.md`](fault-injection-experiments.md) E4–E6.
+
+| A27 | Tool asks for an absolute path (`/etc/passwd`) | `Workspace.resolve` rejects absolute paths before any syscall | tool call | `test_rejects_paths_that_do_not_name_a_file_inside_the_root` | `ToolError("path_outside_scope")` |
+| A28 | Traversal (`../x`, `notes/../../x`) | every `..` component rejected outright | tool call | same test + `test_traversal_reaches_the_registry_as_a_tool_error` | `path_outside_scope` |
+| A29 | A path component is a symlink pointing outside the root | component-wise `O_NOFOLLOW` walk on an open directory descriptor | tool call | `test_rejects_symlinked_directory_component` | `path_symlink` |
+| A30 | A file is a symlink to a victim outside | `stat(..., follow_symlinks=False)` rejects before open | tool call | `test_rejects_symlinked_file`, `test_write_cannot_follow_a_planted_symlink` | `path_symlink`, victim unchanged |
+| A31 | The workspace root itself is a symlink | `root.is_symlink()` rejected at construction | construction | `test_rejects_symlinked_root` | `root_symlink` |
+| A32 | Write silently overwrites an existing file | `O_EXCL` unless `overwrite=True` is passed explicitly | tool call | `test_write_is_exclusive_by_default`, `test_write_needs_an_explicit_overwrite_flag` | `file_exists`, original preserved |
+| A33 | A write-capable tool runs without a declared scope | `ToolSpec` refuses `path_scope` with `side_effect="none"`; registry refuses `deny`; `interrupt` returns `approval_required` and never auto-approves | construction + tool call | `test_declared_scope_is_required_to_match_side_effect`, `test_registry_never_auto_approves_an_interrupt_scope` | refused |
+
+**A27–A33 are the W6 capability line, not a hardening pass.** Before W6 this
+project had no write surface, so a path sandbox had nothing to constrain. W6 adds
+`Workspace` plus the `read_file` / `write_file` tools, which makes the scope real:
+`ToolSpec.path_scope` carries a three-mode declaration (`allow` / `deny` /
+`interrupt`) modelled on Deep Agents' `FilesystemPermission`, and
+`ToolRegistry.call()` enforces it before the handler runs.
+
+Fault injection against this new code: E7 (drop the symlink check), E8 (drop the
+post-walk containment fallback), E9 (auto-approve `interrupt`), E10 (drop
+`O_EXCL`) are each caught by exactly one test.
 
 ## Side-effect posture
 

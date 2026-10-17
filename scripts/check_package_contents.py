@@ -174,6 +174,7 @@ src/agentlab/research/ragchecker_metrics.py
 src/agentlab/research/reasoner.py
 src/agentlab/research/retrieval.py
 src/agentlab/research/suite_runner.py
+src/agentlab/research/workspace.py
 src/agentlab/research/tools.py
 src/agentlab/research/vector_index.py
 src/agentlab/resilience/__init__.py
@@ -208,6 +209,7 @@ tests/test_research_rag_evaluation.py
 tests/test_research_ragchecker_evaluation.py
 tests/test_research_ragchecker_metrics.py
 tests/test_research_retrieval.py
+tests/test_research_workspace.py
 tests/test_research_tools.py
 tests/test_research_vector_index.py
 tests/test_resilience.py

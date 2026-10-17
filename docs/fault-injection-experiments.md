@@ -23,6 +23,10 @@ Method note: every suite in this project is deterministic and offline, so a
 | E4 | `_prepare_index_dir` symlink rejection | `pytest` | **missed, then caught** — 15 tests stayed green; test added, now fails |
 | E5 | Manifest write `O_CREAT \| O_EXCL \| O_NOFOLLOW` → `O_TRUNC` | `pytest` | **missed, then caught** — as E4 |
 | E6 | Manifest mode `0o600` → `0o644` | `pytest` | **missed, then caught** — as E4 |
+| E7 | `Workspace.resolve` symlink check | `pytest` | **caught** — 2 tests fail |
+| E8 | Post-walk containment fallback | `pytest` | **missed, then caught** — see below |
+| E9 | `interrupt` scope auto-approved | `pytest` | **caught** — 1 test fails |
+| E10 | `O_EXCL` removed from the workspace write | `pytest` | **caught** — 1 test fails |
 
 Two of the three experiments also exposed **false greens in this project's own
 suites**. Those are recorded below because they are the more useful result: they
@@ -163,6 +167,31 @@ injections now each fail exactly one test.
 
 This is the same defect class as E1's first attempt, but in product code rather
 than in a suite: **a defence nobody tests is indistinguishable from no defence.**
+
+## E7–E10 — the W6 write surface
+
+W6 adds the project's first write surface (`Workspace` plus `read_file` /
+`write_file`). Four injections against it:
+
+```
+E7  drop the symlink check in resolve()        → 2 failed   (caught)
+E8  drop the post-walk containment fallback    → 32 passed  (missed)
+E9  auto-approve an interrupt scope            → 1 failed   (caught)
+E10 drop O_EXCL from the write                 → 1 failed   (caught)
+```
+
+**E8 was a genuine false green, and the cause was redundant code.** The
+containment fallback was implemented twice, once against the resolved parent and
+once against the final path. Removing either left the other enforcing the same
+rule, so the branch was untestable and, worse, the duplicate was dead weight.
+The two checks were merged into one, and a test now exercises it directly
+(`test_escape_fallback_rejects_a_path_whose_parent_resolves_outside`) rather than
+pretending a suite case covers a race the walk already prevents. With the
+duplicate gone, E8 fails exactly one test.
+
+Note on method: E7 and E10 were injected into files that were **not yet tracked by
+git**, so `git checkout --` could not restore them and the injected damage had to
+be repaired by hand. Inject only into tracked files, or copy a backup first.
 
 ## False greens found (the more important result)
 

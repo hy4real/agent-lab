@@ -115,6 +115,8 @@ git diff --check
 - `ToolSpec` 必须显式声明 `side_effect`（`none` / `read` / `write`）与 `max_output_bytes`。`ToolRegistry.call()` 必须强制 `max_output_bytes`，越界抛 `ToolError("output_too_large")` 并记 event。评测 runner 以**声明为 `write` 的调用次数**作为副作用计数，与 case 的 `expected_side_effects` 比对，超出即该 case 失败
 - 声明与实现不符（声明 `none` 却产生副作用）**无法由 registry 自动侦测**，只能靠 handler 走受控接口 + 单测覆盖；任何新增 `write` 工具必须同时提交一条验证其副作用的单测。`side_effect` 描述的是**工具**。**`--live` 的 Provider 路径不是工具**，它由 `live` extra 与显式 `--live` 开关约束，不经 ToolRegistry，因此当前不引入 `network` 副作用类型
 - **不得再写「网络调用面不存在」**：`llm.py` 会真实调用 OpenAI-compatible Provider（见上文 `--live` 条款），这条路径**没有机制层的出口控制**，只有「用户显式加 `--live`」这一约定。新增**任何会出网的工具**时，同批必须引入 `network` 副作用类型、出口域名白名单，并同步更新 `docs/isolation-attack-matrix.md`
+- **工具路径权限必须声明式**：`ToolSpec.path_scope` 可选，取值 `None`（不碰文件系统）或 `PathScope(mode, roots, deny_globs)`。`mode` 三档：`allow`（root 内放行）、`deny`（一律拒绝）、`interrupt`（返回 `approval_required`，**不得自动放行**）。`ToolRegistry.call()` 必须在调用 handler 前校验，越界抛 `ToolError("path_outside_scope")` 并记 event
+- **路径解析只走 `Workspace.resolve()`**：拒绝绝对路径、`..` 段、任一段符号链接、非普通文件、逃出 root；解析结果必须 `is_relative_to(root)`。禁止任何工具自行 `open(path)`。写操作必须 `O_CREAT|O_EXCL|O_NOFOLLOW` 加显式覆盖开关
 - `evals/paper-ragchecker-v1/` 只能包含完全合成语料、人工冻结的 oracle entailment label 和确定性运行结果；它不调用 claim extractor、entailment model、Provider 或网络，不得表述为完整 RAGChecker 复现、论文结论验证或模型质量评测
 - RAGChecker 指标输入必须显式携带唯一的 ground-truth claim、response claim 和 retrieved chunk ID，并严格验证四个方向性矩阵的形状与 bool 类型；退化输入行为固定匹配所引用的官方实现版本
 - RAGChecker paper-to-code 只有在冻结评测和维护者本人方法答辩均完成后才能进入公开项目材料；答辩前只能标记为工程实现完成，不得据此声称已具备论文理解能力

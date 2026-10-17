@@ -8,6 +8,7 @@ from typing import Any, Callable, Mapping, Protocol
 
 from ..reasoning import ToolError
 from .corpus import Corpus, CorpusError
+from .workspace import PathScope, Workspace, WorkspaceError, scope_permits
 
 
 class SearchProvider(Protocol):
@@ -38,12 +39,17 @@ class ToolSpec:
     handler: Callable[[Mapping[str, Any]], Any]
     side_effect: str
     max_output_bytes: int
+    path_scope: PathScope | None = None
 
     def __post_init__(self) -> None:
         if self.side_effect not in SIDE_EFFECTS:
             raise ValueError("side_effect 必须是 none / read / write")
         if not isinstance(self.max_output_bytes, int) or self.max_output_bytes <= 0:
             raise ValueError("max_output_bytes 必须是正整数")
+        if self.path_scope is not None and not isinstance(self.path_scope, PathScope):
+            raise ValueError("path_scope 必须是 PathScope 或 None")
+        if self.path_scope is not None and self.side_effect == "none":
+            raise ValueError("声明 path_scope 的工具必须声明 read 或 write 副作用")
 
 
 class ToolRegistry:
@@ -91,11 +97,12 @@ class ToolRegistry:
             if not isinstance(value, dict):
                 raise ToolError("invalid_arguments")
             self._validate(value, spec)
+            self._enforce_path_scope(tool, value, spec)
             result = spec.handler(value)
         except json.JSONDecodeError as exc:
             self._events.append(ToolEvent(tool, "error"))
             raise ToolError("invalid_arguments") from exc
-        except (CorpusError, TypeError, ValueError) as exc:
+        except (CorpusError, WorkspaceError, TypeError, ValueError) as exc:
             self._events.append(ToolEvent(tool, "error"))
             raise ToolError("tool_failure") from exc
         except ToolError:
@@ -121,6 +128,30 @@ class ToolRegistry:
             self._write_calls += 1
         self._events.append(ToolEvent(tool, "ok"))
         return payload
+
+    def _enforce_path_scope(self, tool: str, value: Mapping[str, Any], spec: ToolSpec) -> None:
+        """Refuse before the handler runs. Never auto-approves an interrupt scope."""
+        scope = spec.path_scope
+        if scope is None:
+            return
+        if scope.mode == "deny":
+            self._events.append(ToolEvent(tool, "error"))
+            raise ToolError("path_denied")
+        if scope.mode == "interrupt":
+            self._events.append(ToolEvent(tool, "error"))
+            raise ToolError("approval_required")
+        raw = value.get("path")
+        if not isinstance(raw, str):
+            self._events.append(ToolEvent(tool, "error"))
+            raise ToolError("path_outside_scope")
+        try:
+            permitted = scope_permits(scope, raw)
+        except WorkspaceError as exc:
+            self._events.append(ToolEvent(tool, "error"))
+            raise ToolError("path_outside_scope") from exc
+        if not permitted:
+            self._events.append(ToolEvent(tool, "error"))
+            raise ToolError("path_outside_scope")
 
     @staticmethod
     def _validate(value: Mapping[str, Any], spec: ToolSpec) -> None:
@@ -179,6 +210,49 @@ def build_research_tools(corpus: Corpus, *, search: SearchProvider | None = None
             side_effect="read",
             max_output_bytes=8 * 1024,
             handler=lambda args: _render_chunk(corpus, str(args["chunk_id"])),
+        ),
+    )
+    return registry
+
+
+def build_workspace_tools(workspace: Workspace, *, scope: PathScope) -> ToolRegistry:
+    """Tools over a scoped workspace. The only place this project can write.
+
+    ``read_file`` and ``write_file`` both carry the same declared scope, so the
+    registry refuses a path outside it before the handler ever sees the call.
+    """
+    registry = ToolRegistry()
+
+    def _read(args: Mapping[str, Any]) -> dict[str, Any]:
+        text, size = workspace.read_text(str(args["path"]))
+        return {"path": str(args["path"]), "bytes": size, "text": text}
+
+    def _write(args: Mapping[str, Any]) -> dict[str, Any]:
+        written = workspace.write_text(
+            str(args["path"]), str(args["text"]), overwrite=bool(args.get("overwrite", False))
+        )
+        return {"path": str(args["path"]), "bytes": written}
+
+    registry.register(
+        "read_file",
+        ToolSpec(
+            required={"path": str},
+            optional={},
+            side_effect="read",
+            max_output_bytes=16 * 1024,
+            path_scope=scope,
+            handler=_read,
+        ),
+    )
+    registry.register(
+        "write_file",
+        ToolSpec(
+            required={"path": str, "text": str},
+            optional={"overwrite": bool},
+            side_effect="write",
+            max_output_bytes=4 * 1024,
+            path_scope=scope,
+            handler=_write,
         ),
     )
     return registry
